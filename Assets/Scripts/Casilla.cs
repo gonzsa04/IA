@@ -20,7 +20,7 @@ public class Casilla
         textMeshComp.color = new Color(0.0f, 0.0f, 0.0f, 1.0f);
         textMeshComp.fontSize = 50;
         textMeshComp.characterSize = 0.1f;
-        //text.GetComponent<Transform>().scale.x = 0.2f;
+        text.transform.position -= new Vector3(0.13f, -0.3f, 0f);
     }
 
     public Casilla(int num)
