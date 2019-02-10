@@ -7,6 +7,7 @@ public class Casilla
 {
     private int numCas;      // numero de la casilla que es
     private int actualCas;   // posicion atual en la que se encuentra
+	private int inPos;       //posicion inicial
     private GameObject cube; // representa la casilla
     private GameObject text; // escribe el numero de la casilla sobre el cubo
 
@@ -25,7 +26,7 @@ public class Casilla
 
     public Casilla(int num)
     {
-        actualCas = num; // crea una casilla con texto, estableciendo su posicion actual
+        actualCas = inPos = num; // crea una casilla con texto, estableciendo su posicion actual
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         addText();
     }
@@ -34,6 +35,8 @@ public class Casilla
     public void setNum(int n) { numCas = n; text.GetComponent<TextMesh>().text = numCas.ToString(); }
     public GameObject getCube() { return cube; }
     public int getactualCas() { return actualCas; }
+    public int setactualCas(int i, int j) { return actualCas; }
     public void setActualNum(int n) { actualCas = n; }
+	public int getInPos() { return inPos; }
 }
 
