@@ -9,8 +9,9 @@ public class GameManager : MonoBehaviour {
 	public int distancia;
 	public int n;
 	[HideInInspector] public Casilla[,] tablero;
-    [HideInInspector] public int hueco;
-    int in_hueco;
+    [HideInInspector] public Vector2 hueco;
+    Casilla[,] in_tablero;
+    Vector2 in_hueco;
     bool done = false;
 
 	// Use this for initialization
@@ -39,46 +40,47 @@ public class GameManager : MonoBehaviour {
                 }
                 else
                 {
-                    hueco = i;
-                    in_hueco = i;
+                    hueco = new Vector2(i, j);
+                    in_hueco = hueco;
                 }
                 posibles.Remove(posibles[rnd]);
             }
 		}
 
-	}
+        in_tablero = tablero;
+    }
 
 	public void reset(){
-        print("la puta de jorge");
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
             {
-                tablero[i, j].getCube().transform.position = new Vector3(tablero[i,j].getInPos().x * distancia, tablero[i, j].getInPos().y * distancia, 0);
+                if (tablero[i, j] != null)
+                {
+                    Casilla temp = tablero[(int)tablero[i, j].getInPos().x, (int)tablero[i, j].getInPos().y];
+                    tablero[(int)tablero[i, j].getInPos().x, (int)tablero[i, j].getInPos().y] = tablero[i, j];
+                    tablero[i, j] = temp;
+
+                    
+                    tablero[i, j].getCube().transform.position = new Vector3(tablero[i, j].getInPos().x * distancia, tablero[i, j].getInPos().y * distancia, 0);
+                }
             }
         }
+
         hueco = in_hueco;
     }
 
-    public void swap(int toChange)
+    public void swap(Vector2 toChange)
     {
-        if (toChange <= n * n && toChange >= 0)
+        if (toChange.x < n && toChange.x >= 0 && toChange.y < n && toChange.y >= 0)
         {
-            bool found = false;
-            int i = 0;
 
-            /*while (!found && i < tablero.Count)
-            {
-                found = tablero[i].getactualCas() == toChange;
-                i++;
-            }
+            Casilla temp = tablero[(int)toChange.x, (int)toChange.y];
+            tablero[(int)toChange.x, (int)toChange.y] = tablero[(int)hueco.x, (int)hueco.y];
+            tablero[(int)hueco.x, (int)hueco.y] = temp;
 
-            print(i - 1);
-            if (found)
-            {
-                tablero[i - 1].getCube().transform.position = new Vector3(hueco / n * distancia, -hueco % n * distancia, 0);
-                hueco = toChange;
-            }*/
+            tablero[(int)hueco.x, (int)hueco.y].getCube().transform.position = new Vector3(hueco.x * distancia, hueco.y * distancia, 0);
+            hueco = toChange;
         }
     }
     

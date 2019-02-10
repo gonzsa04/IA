@@ -19,23 +19,19 @@ public class Player : MonoBehaviour {
     {
         if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.RightArrow))
         {
-            print(GameManager.instance.hueco - GameManager.instance.n);
-            GameManager.instance.swap(GameManager.instance.hueco - GameManager.instance.n);
+            GameManager.instance.swap(new Vector2(GameManager.instance.hueco.x - 1, GameManager.instance.hueco.y));
         }
         else if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.UpArrow))
         {
-            if ((GameManager.instance.hueco - 1) % GameManager.instance.n != 0)
-                GameManager.instance.swap(GameManager.instance.hueco - 1);
+            GameManager.instance.swap(new Vector2(GameManager.instance.hueco.x, GameManager.instance.hueco.y - 1));
         }
         else if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.LeftArrow))
         {
-            print(GameManager.instance.hueco + GameManager.instance.n);
-            GameManager.instance.swap(GameManager.instance.hueco + GameManager.instance.n);
+            GameManager.instance.swap(new Vector2(GameManager.instance.hueco.x + 1, GameManager.instance.hueco.y));
         }
         else if (Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.DownArrow))
         {
-            if((GameManager.instance.hueco + 1) % GameManager.instance.n != 2)
-                GameManager.instance.swap(GameManager.instance.hueco + 1);
+           GameManager.instance.swap(new Vector2(GameManager.instance.hueco.x, GameManager.instance.hueco.y + 1));
         }
     }
 }
