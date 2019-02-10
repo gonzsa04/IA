@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour {
 	{
 		List<int> posibles = new List<int>();
         tablero = new Casilla[n, n];
+        in_tablero = new Casilla[n, n];
 
         for (int i = 0; i < n * n; i++) posibles.Add(i);
 
@@ -35,6 +36,7 @@ public class GameManager : MonoBehaviour {
                 {
                     Casilla c = new Casilla(new Vector2(i,j));
                     tablero[i, j] = c;
+                    in_tablero[i, j] = c;
                     c.getCube().transform.position = new Vector3(i * distancia, j * distancia, 0);
                     c.setNum(posibles[rnd]);
                 }
@@ -46,23 +48,17 @@ public class GameManager : MonoBehaviour {
                 posibles.Remove(posibles[rnd]);
             }
 		}
-
-        in_tablero = tablero;
     }
 
 	public void reset(){
+        tablero = (Casilla[,])in_tablero.Clone();
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
             {
                 if (tablero[i, j] != null)
                 {
-                    Casilla temp = tablero[(int)tablero[i, j].getInPos().x, (int)tablero[i, j].getInPos().y];
-                    tablero[(int)tablero[i, j].getInPos().x, (int)tablero[i, j].getInPos().y] = tablero[i, j];
-                    tablero[i, j] = temp;
-
-                    
-                    tablero[i, j].getCube().transform.position = new Vector3(tablero[i, j].getInPos().x * distancia, tablero[i, j].getInPos().y * distancia, 0);
+                    tablero[i, j].getCube().transform.position = new Vector3(i * distancia, j * distancia, 0);
                 }
             }
         }
