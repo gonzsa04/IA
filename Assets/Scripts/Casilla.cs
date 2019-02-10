@@ -6,8 +6,8 @@ using UnityEngine;
 public class Casilla
 {
     private int numCas;      // numero de la casilla que es
-    private int actualCas;   // posicion atual en la que se encuentra
-	private int inPos;       //posicion inicial
+    private Vector2 actualCas;   // posicion atual en la que se encuentra
+	private Vector2 inPos;       //posicion inicial
     private GameObject cube; // representa la casilla
     private GameObject text; // escribe el numero de la casilla sobre el cubo
 
@@ -24,7 +24,7 @@ public class Casilla
         text.transform.position -= new Vector3(0.13f, -0.3f, 0f);
     }
 
-    public Casilla(int num)
+    public Casilla(Vector2 num)
     {
         actualCas = inPos = num; // crea una casilla con texto, estableciendo su posicion actual
         cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -34,9 +34,9 @@ public class Casilla
     public int getNum() { return numCas; }
     public void setNum(int n) { numCas = n; text.GetComponent<TextMesh>().text = numCas.ToString(); }
     public GameObject getCube() { return cube; }
-    public int getactualCas() { return actualCas; }
-    public int setactualCas(int i, int j) { return actualCas; }
-    public void setActualNum(int n) { actualCas = n; }
-	public int getInPos() { return inPos; }
+    public Vector2 getactualCas() { return actualCas; }
+    public void setactualCas(int n) { numCas = n; }
+    public void setActualNum(int i, int j) { actualCas.x = i; actualCas.y = j; }
+	public Vector2 getInPos() { return inPos; }
 }
 

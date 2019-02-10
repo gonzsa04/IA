@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour {
                 int rnd = Random.Range(0, posibles.Count);
                 if (posibles[rnd] != 0)
                 {
-                    Casilla c = new Casilla(i);
+                    Casilla c = new Casilla(new Vector2(i,j));
                     tablero[i, j] = c;
                     c.getCube().transform.position = new Vector3(i * distancia, j * distancia, 0);
                     c.setNum(posibles[rnd]);
@@ -49,12 +49,12 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void reset(){
-
+        print("la puta de jorge");
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
             {
-                tablero[i, j].getCube().transform.position = new Vector3(i * distancia, j * distancia, 0);
+                tablero[i, j].getCube().transform.position = new Vector3(tablero[i,j].getInPos().x * distancia, tablero[i, j].getInPos().y * distancia, 0);
             }
         }
         hueco = in_hueco;
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour {
             int j = 0;
             while (win && j < n)
             {
-                win = (tablero[i, j].getactualCas() == tablero[i, j].getNum());
+                win = ((tablero[i, j].getactualCas().x*n+ tablero[i, j].getactualCas().y) == tablero[i, j].getNum());
                 j++;
             }
             i++;
