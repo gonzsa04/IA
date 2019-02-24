@@ -11,19 +11,16 @@
 namespace UCM.IAV.Puzzles.Model.AI {
     using System;
     using System.Collections.Generic;
-    using AIMA.Core.Agent;
-    using AIMA.Core.Agent.Impl;
-    using AIMA.Core.Util.DataStructure;
-    using AIMA.Core.Search;
-    using AIMA.Core.Search.Framework;
-    using AIMA.Core.Search.Uninformed;
+    using UCM.IAV.IA.Search;
+    using UCM.IAV.IA.Search.Uninformed; 
+    using UCM.IAV.IA;
 
-    /**
-     * @author Ravi Mohan
-     * @author R. Lunde
+
+    /* 
+     * El resolutor de IA especializado en puzles de bloques deslizantes.
+     * Se basa en la clase SlidingPuzzle, el modelo lógico de este tipo de puzles.
+     * Estas clases podrían ser abreviadas usando SP en vez de SlidingPuzzle, en plan SPSolver.
      */
-    // Se basa en la clase EightPuzzleBoard
-    // LO MISMO NO ES SLIDING, EH? SINO UN RESOLUTOR DE BÚSQUEDA GENÉRICO CHAVALES!!!! Bueno, llámalo SearchBasedSolver
     public class SlidingPuzzleSolver {
 
         // Estrategias posibles (podemos añadir más)
@@ -32,10 +29,10 @@ namespace UCM.IAV.Puzzles.Model.AI {
         // Añadí AIMA.Core.Agent. a los cuatro operadores
         // Tal vez sería mejor con enumerados
         // Esto se lee: Puedo mover el hueco hacia arriba, o puedo mover la pieza de arriba del hueco
-        public static AIMA.Core.Agent.Operator UP = new DynamicOperator("Up");
-        public static AIMA.Core.Agent.Operator DOWN = new DynamicOperator("Down");
-        public static AIMA.Core.Agent.Operator LEFT = new DynamicOperator("Left");
-        public static AIMA.Core.Agent.Operator RIGHT = new DynamicOperator("Right");
+        public static Operator UP = new DynamicOperator("Up");
+        public static Operator DOWN = new DynamicOperator("Down");
+        public static Operator LEFT = new DynamicOperator("Left");
+        public static Operator RIGHT = new DynamicOperator("Right");
                 
         //He añadido yo aquí las métricas
         private Metrics metrics;
@@ -64,17 +61,17 @@ namespace UCM.IAV.Puzzles.Model.AI {
 
 
         // A ver si esto tiene que estar aquí o puede ser otra cosa (en el propio SlidingPuzzleManager)
-        public List<Operator> Solve(SlidingPuzzle config, SlidingPuzzleSolver.Strategy strategy) {
+         public List<Operator> Solve(SlidingPuzzle setup, SlidingPuzzleSolver.Strategy strategy) {
 
 
             // Construimos el problema a partir del puzle. 
-            //Pieza a pieza (el puzle tal cual será el initialState -lo mismo debería sacar el array-)
+            //Pieza a pieza (el puzle tal cual será el initialSetup -lo mismo debería sacar el array-)
 
 
 
             //Aquí construimos el problema en base al puzle actual (la CONFIGURACIÓN del puzle actual), que no me gusta como es porque es el puzle con unas pocas cosas por encima!!! El dominio de problema no es un objeto
-            Problem problem = new Problem(config, oFunction, rFunction, goalTest); //Me molaría más que el problema no sea el solver, sino el puzle... pero bueno, quizá sea PROBLEM lo que debería llamarse el solver
-                                                                                                                                                                                       //public Problem(Object initialState, OperatorsFunction actionsFunction, ResultFunction resultFunction, GoalTest goalTest)
+            Problem problem = new Problem(setup, oFunction, rFunction, goalTest); //Me molaría más que el problema no sea el solver, sino el puzle... pero bueno, quizá sea PROBLEM lo que debería llamarse el solver
+                                                                                              //public Problem(Object initialSetup, OperatorsFunction operatorsFunction, ResultFunction resultFunction, GoalTest goalTest)
 
             // AQUÍ CREARÍAMOS LA ESTRATEGIA, EL TIPO DE BÚSQUEDA, pidiéndole que use búsqueda de coste uniforme por ejemplo. Y lo llamamos
 
@@ -85,7 +82,7 @@ namespace UCM.IAV.Puzzles.Model.AI {
                     // ...
             }           
             List<Operator> operators = search.Search(problem);
-            metrics = search.getMetrics();
+            metrics = search.GetMetrics();
 
             return operators; // Deberíamos devolver también las métricas, seguramente
         }

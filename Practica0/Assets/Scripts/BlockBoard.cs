@@ -23,8 +23,8 @@ namespace UCM.IAV.Puzzles {
     public class BlockBoard : MonoBehaviour {
 
         // Constantes
-        public static readonly float USER_DELAY = 0.2f;
-        public static readonly float AI_DELAY = 0.5f;
+        public static readonly float USER_DELAY = 0.0f;
+        public static readonly float AI_DELAY = 0.2f;
 
         private static readonly float POSITION_FACTOR_R = 1.1f;
         private static readonly float POSITION_FACTOR_C = 1.1f;

@@ -31,8 +31,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Ni la fila ni la columna pueden ser UInt32.MaxValue.
         public Position(uint row, uint column) {
 
-            if (row == UInt32.MaxValue) throw new ArgumentException(String.Format("{0} is not a valid row", row), "row");
-            if (column == UInt32.MaxValue) throw new ArgumentException(String.Format("{0} is not a valid column", column), "column");
+            if (row == UInt32.MaxValue) throw new ArgumentException(string.Format("{0} is not a valid row", row), "row");
+            if (column == UInt32.MaxValue) throw new ArgumentException(string.Format("{0} is not a valid column", column), "column");
 
             this.row = row;
             this.column = column;
@@ -159,7 +159,7 @@ namespace UCM.IAV.Puzzles.Model {
 
         // Compara esta posición con otro objeto y dice si son iguales
         // Sobreescribe la función Equals de Object
-        public override bool Equals(Object o) {
+        public override bool Equals(object o) {
             return Equals(o as Position);
         }
 

@@ -46,8 +46,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Construye la matriz de dimensiones (rows) por (columns)
         // Como mínimo el puzle debe ser de 1x1
         public SlidingPuzzle(uint rows, uint columns) {
-            if (rows == 0) throw new ArgumentException(String.Format("{0} is not a valid rows value", rows), "rows");
-            if (columns == 0) throw new ArgumentException(String.Format("{0} is not a valid columns value", columns), "columns");
+            if (rows == 0) throw new ArgumentException(string.Format("{0} is not a valid rows value", rows), "rows");
+            if (columns == 0) throw new ArgumentException(string.Format("{0} is not a valid columns value", columns), "columns");
 
             this.Initialize(rows, columns);
         }
@@ -67,7 +67,7 @@ namespace UCM.IAV.Puzzles.Model {
 
             // Si la posición del hueco estuviese mal indicada en el otro puzzle se produciría una excepción
             if (puzzle.matrix[puzzle.GapPosition.GetRow(), puzzle.GapPosition.GetColumn()] != GAP_VALUE)
-                throw new ArgumentException(String.Format("{0} is not a valid rows value", rows), "rows");
+                throw new ArgumentException(string.Format("{0} is not a valid rows value", rows), "rows");
 
             GapPosition = puzzle.GapPosition; 
         }
@@ -91,8 +91,8 @@ namespace UCM.IAV.Puzzles.Model {
         //   10  11  S
         // Como mínimo el puzle debe ser de 1x1
         public void Initialize(uint rows, uint columns) {
-            if (rows == 0) throw new ArgumentException(String.Format("{0} is not a valid rows value", rows), "rows");
-            if (columns == 0) throw new ArgumentException(String.Format("{0} is not a valid columns value", columns), "columns");
+            if (rows == 0) throw new ArgumentException(string.Format("{0} is not a valid rows value", rows), "rows");
+            if (columns == 0) throw new ArgumentException(string.Format("{0} is not a valid columns value", columns), "columns");
 
             this.rows = rows;
             this.columns = columns;
@@ -124,8 +124,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Si no hay ningún valor, se devolverá nulo
         public uint GetValue(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             // Se podría ver si la posición es la de GapPosition y devolver el valor de hueco directamente
             return matrix[position.GetRow(), position.GetColumn()];
@@ -147,8 +147,8 @@ namespace UCM.IAV.Puzzles.Model {
         // En este caso, como no se especifica ninguna dirección a donde moverlo, el hueco no se considera un valor "movible" así en general. 
         public bool CanMoveByDefault(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             // El hueco no se puede mover directamente, sin especificar ninguna dirección
             if (position.Equals(GapPosition))
@@ -162,8 +162,8 @@ namespace UCM.IAV.Puzzles.Model {
         // En este caso, como no se especifica ninguna dirección a donde moverlo, el hueco no se considera un valor "movible por defecto" 
         public Position MoveByDefault(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
             if (!CanMoveByDefault(position)) throw new InvalidOperationException("The required movement is not possible");
 
             UnityEngine.Debug.Log(ToString() + " is moving " + position.ToString());
@@ -183,10 +183,10 @@ namespace UCM.IAV.Puzzles.Model {
         private void Move(Position origin, Position target) {
             if (origin == null) throw new ArgumentNullException(nameof(origin));
             if (target == null) throw new ArgumentNullException(nameof(target));
-            if (origin.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (target.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", target.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (target.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", target.GetColumn()), "column");
+            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
+            if (target.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", target.GetRow()), "row");
+            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
+            if (target.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", target.GetColumn()), "column");
 
             // Intercambio de valores entre las dos posiciones de la matriz
             uint auxValue = GetValue(origin);
@@ -210,8 +210,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Devuelve cierto si es posible mover un valor a la posición de arriba de una determinada posición (sea el hueco o no) 
         public bool CanMoveUp(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             return GapPosition.IsUp(position) || (GapPosition.Equals(position) && GapPosition.GetRow() > 0u);
         }
@@ -220,8 +220,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Falla si no es posible realizar el movimiento
         public Position MoveUp(Position origin) {
             if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
+            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
+            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
             if (!CanMoveUp(origin)) throw new InvalidOperationException("The required movement is not possible");
 
             Position target = origin.Up(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
@@ -233,8 +233,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Devuelve cierto si es posible mover un valor a la posición de abajo de una determinada posición (sea el hueco o no) 
         public bool CanMoveDown(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             return GapPosition.IsDown(position) || (GapPosition.Equals(position) && GapPosition.GetRow() + 1u < rows);
         }
@@ -243,8 +243,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Falla si no es posible realizar el movimiento
         public Position MoveDown(Position origin) {
             if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
+            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
+            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
             if (!CanMoveDown(origin)) throw new InvalidOperationException("The required movement is not possible");
 
             Position target = origin.Down(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
@@ -256,8 +256,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Devuelve cierto si es posible mover un valor a la posición izquierda de una determinada posición (sea el hueco o no) 
         public bool CanMoveLeft(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             return GapPosition.IsLeft(position) || (GapPosition.Equals(position) && GapPosition.GetColumn() > 0u);
         }
@@ -266,8 +266,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Falla si no es posible realizar el movimiento
         public Position MoveLeft(Position origin) {
             if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
+            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
+            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
             if (!CanMoveLeft(origin)) throw new InvalidOperationException("The required movement is not possible");
 
             Position target = origin.Left(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
@@ -279,8 +279,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Devuelve cierto si es posible mover un valor a la posición derecha de una determinada posición (sea el hueco o no) 
         public bool CanMoveRight(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
+            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
             return GapPosition.IsRight(position) || (GapPosition.Equals(position) && GapPosition.GetColumn() + 1u < columns);
         }
@@ -289,8 +289,8 @@ namespace UCM.IAV.Puzzles.Model {
         // Falla si no es posible realizar el movimiento
         public Position MoveRight(Position origin) {
             if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(String.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(String.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
+            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
+            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
             if (!CanMoveRight(origin)) throw new InvalidOperationException("The required movement is not possible");
 
             Position target = origin.Right(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
@@ -300,8 +300,8 @@ namespace UCM.IAV.Puzzles.Model {
         }
 
         // Compara este puzle con otro objeto y dice si son iguales
-        // Sobreescribe la función Equals de Object
-        public override bool Equals(Object o) {
+        // Sobreescribe la función Equals de object
+        public override bool Equals(object o) {
             return Equals(o as SlidingPuzzle);
         }
 

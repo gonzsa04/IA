@@ -18,9 +18,9 @@ namespace UCM.IAV.Puzzles {
     using Model.AI;
 
     // Esto es para usar la IA
-    using AIMA.Core.Search.Framework;
-    using AIMA.Core.Search.Uninformed;
-    using AIMA.Core.Agent;
+    using UCM.IAV.IA;
+    using UCM.IAV.IA.Search;
+    using UCM.IAV.IA.Search.Uninformed; 
 
     /* 
      * Gestor de la escena que actúa como controlador entre la vista (objetos de la escena de Unity) y el modelo (lógica del puzle deslizante).

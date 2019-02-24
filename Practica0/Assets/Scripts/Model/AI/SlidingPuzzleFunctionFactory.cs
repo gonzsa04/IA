@@ -12,13 +12,9 @@ namespace UCM.IAV.Puzzles.Model.AI {
 
     using System;
     using System.Collections.Generic;
-    using AIMA.Core.Agent;
-    using AIMA.Core.Search.Framework;
+    using UCM.IAV.IA.Search;
+    using UCM.IAV.IA;
 
-    /**
-     * @author Ravi Mohan
-     * @author Ciaran O'Reilly
-     */
     public class SlidingPuzzleFunctionFactory
     {
         private static OperatorsFunction _operatorsFunction = null;
@@ -45,7 +41,7 @@ namespace UCM.IAV.Puzzles.Model.AI {
         private class SlidingPuzzleOperatorsFunction : OperatorsFunction 
             {
             // SUSTITUÍ EL LINKEDHASHSET DE JAVA POR HASHSET SOLAMENTE... SE ME HACE RARO QUE SE DEVUELVA UN HASHSET, LO NORMAL SERÍA UNA LIST, Y POR DENTRO IMPLEMENTAR CON ARRAYLIST O ALGO
-            public HashSet<Operator> operators(Object setup) {
+            public HashSet<Operator> Operators(object setup) {
                 // Lo que entra es un problema, un SlidingPuzzle
                 SlidingPuzzle puzzle = (SlidingPuzzle)setup;  
 
@@ -68,7 +64,7 @@ namespace UCM.IAV.Puzzles.Model.AI {
         // QUITO LO DE STATIC CLASSS
         private class SlidingPuzzleResultFunction : ResultFunction {
 
-            public Object result(Object setup, Operator op) {
+            public object GetResult(object setup, Operator op) {
 
                 // Lo recibido es un puzle deslizante
                 SlidingPuzzle puzzle = (SlidingPuzzle)setup;
