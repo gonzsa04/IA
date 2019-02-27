@@ -10,7 +10,7 @@
     // cada tipo con un valor y color distintos
     public class Casilla : MonoBehaviour
     {
-        private BlockBoard board; // tablero de casillas
+        private Tablero tablero; // tablero de casillas
 
         // colores posibles y sus respectivos valores (dependen del tipo)
         private Color[] colors = { Color.white, Color.cyan, Color.yellow, Color.black };
@@ -27,11 +27,11 @@
         
         public Position position;
         
-        public void Initialize(BlockBoard board, uint type)
+        public void Initialize(Tablero tablero, uint type)
         {
-            if (board == null) throw new ArgumentNullException(nameof(board));
+            if (tablero == null) throw new ArgumentNullException(nameof(tablero));
 
-            this.board = board;
+            this.tablero = tablero;
             this.type = (TipoCasilla)type;
             this.initialType = this.type;
             this.value = values[type];
@@ -45,15 +45,23 @@
         // al ser pulsado cambia al siguiente tipo (al llegar al ultimo da la vuelta)
         public bool OnMouseUpAsButton()
         {
-            if (board == null) throw new InvalidOperationException("This object has not been initialized");
+            if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
-            if ((uint)this.type + 1 > 3) this.type = (TipoCasilla)0;
-            else this.type++;
-            this.value = values[(uint)this.type];
+            if (GameManager.instance.isTankSelected())
+            {
+                if (this.type != TipoCasilla.Rocas)GameManager.instance.setTankPosition(this.transform.position);
+                GameManager.instance.changeTankSelected();
+            }
+            else
+            {
+                if ((uint)this.type + 1 > 3) this.type = (TipoCasilla)0;
+                else this.type++;
+                this.value = values[(uint)this.type];
 
-            UpdateColor();
+                UpdateColor();
 
-            return false;
+            }
+                return false;
         }
 
         public double getValue() { return this.value; }
