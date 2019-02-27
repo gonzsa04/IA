@@ -31,8 +31,14 @@
         }
 
         public void UpdateColor() {
-            if (GameManager.instance.isTankSelected()) this.GetComponent<Renderer>().material.color = Color.red;
-            else this.GetComponent<Renderer>().material.color = Color.green;
+            int numOfChildren = transform.childCount;
+
+            for (int i = 0; i < numOfChildren; i++)
+            {
+                GameObject child = transform.GetChild(i).gameObject;
+                if (GameManager.instance.isTankSelected()) child.GetComponent<Renderer>().material.color = new Color(0.6f, 0.1f, 0.1f, 0);
+                else child.GetComponent<Renderer>().material.color = new Color(0.1f, 0.6f, 0.1f, 0);
+            }
         }
 
         // Cadena de texto representativa

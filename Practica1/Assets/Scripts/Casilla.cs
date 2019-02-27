@@ -13,7 +13,9 @@
         private Tablero tablero; // tablero de casillas
 
         // colores posibles y sus respectivos valores (dependen del tipo)
-        private Color[] colors = { Color.white, Color.cyan, Color.yellow, Color.black };
+        private Color[] colors = { Color.gray, new Color(0.05f, 0.35f, 0.6f, 0),
+            new Color(0.6f, 0.3f, 0.1f, 0), new Color(0.3f, 0.25f, 0.2f, 0) };
+
         private double[] values = { 1, 2, 4, 1e9 };
 
         // tipo, tipo inicial y valor, valor inicial
