@@ -5,154 +5,72 @@
     using UCM.IAV.IA;
     using UCM.IAV.IA.Util;
 
-    using System.Collections.Generic;
-
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using System.Numerics;
     
-   /* public class Node
+    using UnityEngine;
+
+    class Astar
     {
-        // Change this depending on what the desired size is for each element in the grid
-        public static int NODE_SIZE = 32;
-        public Node Parent;
-        public Vector2 Position;
-        public Vector2 Center
+        private List<DirectedEdge> edgeTo;
+        private List<double> distTo;
+        private int start;
+
+        public void Init(EdgeWeightedDigraph G, ref IndexedPriorityQueue<double> pq, int s = 0)
         {
-            get
+            start = s;
+            edgeTo = new List<DirectedEdge>();
+            distTo = new List<double>();
+            DirectedEdge auxE = new DirectedEdge(0, 0, 0);
+
+            for (int v = 0; v < G.V(); v++)
             {
-                return new Vector2(Position.X + NODE_SIZE / 2, Position.Y + NODE_SIZE / 2);
+                distTo.Insert(v, 1e9);
+                edgeTo.Insert(v, auxE);
             }
-        }
-        public float DistanceToTarget;
-        public float Cost;
-        public float F
-        {
-            get
+            Debug.Log(start);
+            distTo[start] = 0;
+            pq.insert(start, distTo[start]);
+            while (pq.Count != 0)
             {
-                if (DistanceToTarget != -1 && Cost != -1)
-                    return DistanceToTarget + Cost;
-                else
-                    return -1;
-            }
-        }
-        public bool Walkable;
-
-        public Node(Vector2 pos, bool walkable)
-        {
-            Parent = null;
-            Position = pos;
-            DistanceToTarget = -1;
-            Cost = 1;
-            Walkable = walkable;
-        }
-    }*/
-
-    /*public class Astar
-    {
-        List<List<Node>> Grid;
-        int GridRows
-        {
-            get
-            {
-                return Grid[0].Count;
-            }
-        }
-        int GridCols
-        {
-            get
-            {
-                return Grid.Count;
-            }
-        }
-
-        public Astar(List<List<Node>> grid)
-        {
-            Grid = grid;
-        }
-
-        public Stack<Node> FindPath(Node Start, Node End)
-        {
-            Node start = new Node(new Vector2((int)(Start.X / Node.NODE_SIZE), (int)(Start.Y / Node.NODE_SIZE)), true);
-            Node end = new Node(new Vector2((int)(End.X / Node.NODE_SIZE), (int)(End.Y / Node.NODE_SIZE)), true);
-
-            Stack<Node> Path = new Stack<Node>();
-            List<Node> OpenList = new List<Node>();
-            List<Node> ClosedList = new List<Node>();
-            List<Node> adjacencies;
-            Node current = start;
-
-            // add start node to Open List
-            OpenList.Add(start);
-
-            while (OpenList.Count != 0 && !ClosedList.Exists(x => x.Position == end.Position))
-            {
-                current = OpenList[0];
-                OpenList.Remove(current);
-                ClosedList.Add(current);
-                adjacencies = GetAdjacentNodes(current);
-
-
-                foreach (Node n in adjacencies)
+                int v = (int)pq.Pop();
+                Debug.Log(v);
+                foreach (DirectedEdge e in G.Adj(v))
                 {
-                    if (!ClosedList.Contains(n) && n.Walkable)
-                    {
-                        if (!OpenList.Contains(n))
-                        {
-                            n.GetParent() = current;
-                            n.DistanceToTarget = Math.Abs(n.Position.X - end.Position.X) + Math.Abs(n.Position.Y - end.Position.Y);
-                            n.GetPathCost() = 1 + n.GetParent().GetPathCost();
-                            OpenList.Add(n);
-                            OpenList = OpenList.OrderBy(node => node.F).ToList<Node>();
-                        }
-                    }
+                    relax(e, ref pq);
                 }
             }
-
-            // construct path, if end was not closed return null
-            if (!ClosedList.Exists(x => x.Position == end.Position))
-            {
-                return null;
-            }
-
-            // if all good, return path
-            Node temp = ClosedList[ClosedList.IndexOf(current)];
-            while (temp.GetParent() != start && temp != null)
-            {
-                Path.Push(temp);
-                temp = temp.GetParent();
-            }
-            return Path;
         }
 
-        private List<Node> GetAdjacentNodes(Node n)
+        private void relax(DirectedEdge e, ref IndexedPriorityQueue<double> pq)
         {
-            List<Node> temp = new List<Node>();
-
-            int row = (int)n.Position.Y;
-            int col = (int)n.Position.X;
-
-            if (row + 1 < GridRows)
+            int v = e.From(), w = e.To();
+            if (distTo[w] > distTo[v] + e.Weight())
             {
-                temp.Add(Grid[col][row + 1]);
+                distTo[w] = distTo[v] + e.Weight();
+                edgeTo.Insert(w, e);
+                pq.Set(w, distTo[w]);
             }
-            if (row - 1 >= 0)
-            {
-                temp.Add(Grid[col][row - 1]);
-            }
-            if (col - 1 >= 0)
-            {
-                temp.Add(Grid[col - 1][row]);
-            }
-            if (col + 1 < GridCols)
-            {
-                temp.Add(Grid[col + 1][row]);
-            }
-
-            return temp;
         }
-    }*/
+
+        public List<int> GetPathTo(int end)
+        {
+            List<int> path = new List<int>();
+            path.Insert(path.Count, end);
+            while (edgeTo[end].From() != start)
+            {
+                end = edgeTo[end].From();
+                path.Insert(path.Count, end);
+            }
+            return path;
+        }
+
+        public double GetDistTo(int end)
+        {
+            return distTo[end];
+        }
+    }
 }

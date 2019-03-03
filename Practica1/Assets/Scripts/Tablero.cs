@@ -79,6 +79,7 @@
                     if (!tankInitialized && puzzle.GetType(position) == 0)
                     {
                         GameManager.instance.setTankPosition(casilla.transform.position);
+                        puzzle.TankPosition = new Position(r, c);
                         tankInitialized = true;
                     }
                     Debug.Log(ToString() + "generated " + casilla.ToString() + ".");
@@ -115,6 +116,11 @@
                     puzzle.SetType(new Position(r, c), casillas[r, c].getInitialType());
                 }
             }
+        }
+
+        public double getCasValue(int r, int c)
+        {
+            return casillas[r, c].getValue();
         }
 
         /*// Devuelve si se puede mover un bloque en el tablero

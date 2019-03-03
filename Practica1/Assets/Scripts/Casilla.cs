@@ -16,7 +16,7 @@
         private Color[] colors = { Color.gray, new Color(0.05f, 0.35f, 0.6f, 0),
             new Color(0.6f, 0.3f, 0.1f, 0), new Color(0.3f, 0.25f, 0.2f, 0) };
 
-        private double[] values = { 1, 2, 4, 1e9 };
+        private double[] values = { 1, 2, 4, 1000 };
 
         // tipo, tipo inicial y valor, valor inicial
         private TipoCasilla type;
@@ -51,7 +51,7 @@
 
             if (GameManager.instance.isTankSelected())
             {
-                if (this.type != TipoCasilla.Rocas)GameManager.instance.setTankPosition(this.transform.position);
+                if (this.type != TipoCasilla.Rocas) GameManager.instance.createPath(this.position);
                 GameManager.instance.changeTankSelected();
             }
             else

@@ -10,7 +10,8 @@
     // Esto es para usar la IA
     using UCM.IAV.IA;
     using UCM.IAV.IA.Search;
-    using UCM.IAV.IA.Search.Uninformed; 
+    using UCM.IAV.IA.Search.Informed; 
+    using UCM.IAV.IA.Util;
 
     public class GameManager : MonoBehaviour {
 
@@ -35,9 +36,10 @@
         private double time = 0.0d; // in seconds
         private uint steps = 0;
         private bool tankSelected = false;
+        private EdgeWeightedDigraph graph;
         
         private System.Random random;
-        
+
         void Awake()
         {
             instance = this;
@@ -69,7 +71,6 @@
 
             // Se crea el puzle internamente 
             puzzle = new TankPuzzle(rows, columns);
-            
 
             // Inicializar todo el tablero de bloques
             tablero.Initialize(this, puzzle);
@@ -77,9 +78,43 @@
             // Se crea el tanque
             tank.Initialize();
 
+            CreateGraph();
+
             CleanInfo();
             
             //UpdateInfo();
+        }
+
+        private void CreateGraph()
+        {
+            graph = new EdgeWeightedDigraph((int)(rows * columns));
+            Vector2[] directions = { new Vector2( 0, 1 ), new Vector2( 1, 0 ), new Vector2( 0, -1 ), new Vector2( -1, 0 ) };
+
+            for(int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    foreach (Vector2 v in directions)
+                    {
+                        int ni = i + (int)v.x;
+                        int nj = i + (int)v.y;
+
+                        if (ni >= 0 && ni < rows && nj >= 0 && nj < columns)
+                        {
+                            DirectedEdge a = new DirectedEdge((int)(j + columns * i), (int)(nj + columns * ni), tablero.getCasValue(ni, nj));
+                            graph.AddEdge(a);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void createPath(Position p)
+        {
+            IndexedPriorityQueue<double> pq = new IndexedPriorityQueue<double>((int)(rows * columns));
+            Astar astar = new Astar();
+            astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()));
+            List<int> aux = astar.GetPathTo((int)(p.GetColumn()+p.GetRow()*columns));
         }
 
         // Pone los contadores de información a cero
