@@ -16,28 +16,28 @@
     class Astar
     {
         private List<DirectedEdge> edgeTo;
-        private List<double> distTo;
+        private List<int> distTo;
         private int start;
 
-        public void Init(EdgeWeightedDigraph G, ref IndexedPriorityQueue<double> pq, int s = 0)
+        public void Init(EdgeWeightedDigraph G, ref IndexedPriorityQueue<int> pq, int s = 0)
         {
             start = s;
             edgeTo = new List<DirectedEdge>();
-            distTo = new List<double>();
-            DirectedEdge auxE = new DirectedEdge(0, 0, 0);
+            distTo = new List<int>();
+            DirectedEdge auxE = new DirectedEdge(-1, -1, 1e9);
 
             for (int v = 0; v < G.V(); v++)
             {
-                distTo.Insert(v, 1e9);
+                distTo.Insert(v, (int)1e9);
                 edgeTo.Insert(v, auxE);
             }
-            Debug.Log(start);
+
             distTo[start] = 0;
+            edgeTo[start] = new DirectedEdge(start, start, 0);
             pq.insert(start, distTo[start]);
             while (pq.Count != 0)
             {
                 int v = (int)pq.Pop();
-                Debug.Log(v);
                 foreach (DirectedEdge e in G.Adj(v))
                 {
                     relax(e, ref pq);
@@ -45,13 +45,13 @@
             }
         }
 
-        private void relax(DirectedEdge e, ref IndexedPriorityQueue<double> pq)
+        private void relax(DirectedEdge e, ref IndexedPriorityQueue<int> pq)
         {
             int v = e.From(), w = e.To();
             if (distTo[w] > distTo[v] + e.Weight())
             {
-                distTo[w] = distTo[v] + e.Weight();
-                edgeTo.Insert(w, e);
+                distTo[w] = distTo[v] + (int)e.Weight();
+                edgeTo[w] = e;
                 pq.Set(w, distTo[w]);
             }
         }
@@ -64,6 +64,7 @@
             {
                 end = edgeTo[end].From();
                 path.Insert(path.Count, end);
+                if (end < 0) break;
             }
             return path;
         }

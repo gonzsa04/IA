@@ -1,6 +1,7 @@
 using System;
 using UnityEngine.Assertions;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace UCM.IAV.IA.Util
 {
@@ -12,18 +13,18 @@ namespace UCM.IAV.IA.Util
             get { return m_count; }
         }
 
-        public T this[int index]
+        public int this[int index]
         {
             get
             {
-                Assert.IsTrue(index < m_objects.Length && index >= 0,
+                Assert.IsTrue(index < m_objects.Count && index >= 0,
                                string.Format("IndexedPriorityQueue.[]: Index '{0}' out of range", index));
                 return m_objects[index];
             }
 
             set
             {
-                Assert.IsTrue(index < m_objects.Length && index >= 0,
+                Assert.IsTrue(index < m_objects.Count && index >= 0,
                                string.Format("IndexedPriorityQueue.[]: Index '{0}' out of range", index));
                 Set(index, value);
             }
@@ -39,9 +40,9 @@ namespace UCM.IAV.IA.Util
         /// </summary>
         /// <param name="index">index to insert at</param>
         /// <param name="value">value to insert</param>
-        public void insert(int index, T value)
+        public void insert(int index, int value)
         {
-            Assert.IsTrue(index < m_objects.Length && index >= 0,
+            Assert.IsTrue(index < m_objects.Count && index >= 0,
                            string.Format("IndexedPriorityQueue.Insert: Index '{0}' out of range", index));
 
             ++m_count;
@@ -97,16 +98,20 @@ namespace UCM.IAV.IA.Util
         /// </summary>
         /// <param name="index">index of the value to set</param>
         /// <param name="obj">new value</param>
-        public void Set(int index, T obj)
+        public void Set(int index, int obj)
         {
-            if (obj.CompareTo(m_objects[index]) <= 0)
+            if (m_heap.Contains(index))
             {
-                DecreaseIndex(index, obj);
+                if (obj.CompareTo(m_objects[index]) <= 0)
+                {
+                    DecreaseIndex(index, obj);
+                }
+                else
+                {
+                    IncreaseIndex(index, obj);
+                }
             }
-            else
-            {
-                IncreaseIndex(index, obj);
-            }
+            else insert(index, obj);
         }
 
         /// <summary>
@@ -114,9 +119,9 @@ namespace UCM.IAV.IA.Util
         /// </summary>
         /// <param name="index">index to decrease value of</param>
         /// <param name="obj">new value</param>
-        public void DecreaseIndex(int index, T obj)
+        public void DecreaseIndex(int index, int obj)
         {
-            Assert.IsTrue(index < m_objects.Length && index >= 0,
+            Assert.IsTrue(index < m_objects.Count && index >= 0,
                            string.Format("IndexedPriorityQueue.DecreaseIndex: Index '{0}' out of range",
                            index));
             Assert.IsTrue(obj.CompareTo(m_objects[index]) <= 0,
@@ -132,9 +137,9 @@ namespace UCM.IAV.IA.Util
         /// </summary>
         /// <param name="index">index to increase value of</param>
         /// <param name="obj">new value</param>
-        public void IncreaseIndex(int index, T obj)
+        public void IncreaseIndex(int index, int obj)
         {
-            Assert.IsTrue(index < m_objects.Length && index >= 0,
+            Assert.IsTrue(index < m_objects.Count && index >= 0,
                           string.Format("IndexedPriorityQueue.DecreaseIndex: Index '{0}' out of range",
                           index));
             Assert.IsTrue(obj.CompareTo(m_objects[index]) >= 0,
@@ -159,17 +164,20 @@ namespace UCM.IAV.IA.Util
             Assert.IsTrue(maxSize >= 0,
                            string.Format("IndexedPriorityQueue.Resize: Invalid size '{0}'", maxSize));
 
-            m_objects = new T[maxSize];
-            m_heap = new int[maxSize + 1];
-            m_heapInverse = new int[maxSize];
+            for(int i = 0; i < maxSize; i++)
+            {
+                m_objects.Insert(i, 0);
+                m_heap.Insert(i, 0);
+                m_heapInverse.Insert(i, 0);
+            }
             m_count = 0;
         }
         #endregion // public
 
         #region private
-        private T[] m_objects;
-        private int[] m_heap;
-        private int[] m_heapInverse;
+        private List<int> m_objects = new List<int>();
+        private List<int> m_heap = new List<int>();
+        private List<int> m_heapInverse = new List<int>();
         private int m_count;
 
         private void SortUpward(int index)

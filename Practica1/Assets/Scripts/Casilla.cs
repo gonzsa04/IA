@@ -51,7 +51,7 @@
 
             if (GameManager.instance.isTankSelected())
             {
-                if (this.type != TipoCasilla.Rocas) GameManager.instance.createPath(this.position);
+                if (this.type != TipoCasilla.Rocas) StartCoroutine(GameManager.instance.createPath(this.position));
                 GameManager.instance.changeTankSelected();
             }
             else
@@ -67,6 +67,7 @@
         }
 
         public double getValue() { return this.value; }
+        public TipoCasilla getType() { return this.type; }
         public double getInitialValue() { return this.initialValue; }
         public uint getInitialType() { return (uint)this.initialType; }
 

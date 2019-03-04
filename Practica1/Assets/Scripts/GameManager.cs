@@ -1,6 +1,7 @@
 ﻿namespace UCM.IAV.Puzzles {
     
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
@@ -94,27 +95,46 @@
             {
                 for (int j = 0; j < columns; j++)
                 {
-                    foreach (Vector2 v in directions)
+                    if (tablero.getCasType(i, j) != TipoCasilla.Rocas)
                     {
-                        int ni = i + (int)v.x;
-                        int nj = i + (int)v.y;
-
-                        if (ni >= 0 && ni < rows && nj >= 0 && nj < columns)
+                        foreach (Vector2 v in directions)
                         {
-                            DirectedEdge a = new DirectedEdge((int)(j + columns * i), (int)(nj + columns * ni), tablero.getCasValue(ni, nj));
-                            graph.AddEdge(a);
+                            int ni = i + (int)v.y;
+                            int nj = j + (int)v.x;
+
+                            if (ni >= 0 && ni < rows && nj >= 0 && nj < columns)
+                            {
+                                if (tablero.getCasType(ni, nj) != TipoCasilla.Rocas)
+                                {
+                                    DirectedEdge a = new DirectedEdge((int)(j + columns * i), (int)(nj + columns * ni), tablero.getCasValue(ni, nj));
+                                    graph.AddEdge(a);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        public void createPath(Position p)
+        
+
+        public IEnumerator createPath(Position p)
         {
-            IndexedPriorityQueue<double> pq = new IndexedPriorityQueue<double>((int)(rows * columns));
+            IndexedPriorityQueue<int> pq = new IndexedPriorityQueue<int>((int)(rows*columns));
             Astar astar = new Astar();
             astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()));
             List<int> aux = astar.GetPathTo((int)(p.GetColumn()+p.GetRow()*columns));
+
+            for(int i = 1; i <= aux.Count; i++)
+            {
+                int r = (int)(aux[aux.Count - i] / columns);
+                int c = (int)(aux[aux.Count - i] - r*columns);
+                if (r >= 0 || c >= 0)
+                {
+                    setTankPosition(tablero.getCasPos(r, c));
+                    yield return new WaitForSecondsRealtime(0.1f);
+                }
+            }
         }
 
         // Pone los contadores de información a cero

@@ -123,6 +123,16 @@
             return casillas[r, c].getValue();
         }
 
+        public TipoCasilla getCasType(int r, int c)
+        {
+            return casillas[r, c].getType();
+        }
+
+        public Vector3 getCasPos(int r, int c)
+        {
+            return casillas[r, c].transform.position;
+        }
+
         /*// Devuelve si se puede mover un bloque en el tablero
         public bool CanMove(Casilla block) {
             if (block == null) throw new ArgumentNullException(nameof(block));
