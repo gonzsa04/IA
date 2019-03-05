@@ -7,20 +7,21 @@
     using UnityEngine.UI;
     using Model; 
     using Model.AI;
-
-    // Esto es para usar la IA
+    
+    // IA
     using UCM.IAV.IA;
     using UCM.IAV.IA.Search;
     using UCM.IAV.IA.Search.Informed; 
     using UCM.IAV.IA.Util;
 
+    // gestiona el juego del tanque
     public class GameManager : MonoBehaviour {
-
-        // El tablero de casillas
-        public static GameManager instance;
-        public Tablero tablero;
-        public Tanque tank;
+        
+        public static GameManager instance; // para poder ser llamado desde los demas .cs (static)
+        public Tablero tablero;             // tablero de casillas (representacion visual)
+        public Tanque tank;                 // tanque que se ira moviendo por el tablero
                      
+        // Interfaz
         public GameObject infoPanel;
         public Text timeNumber;
         public Text stepsNumber;
@@ -31,13 +32,14 @@
         public uint rows = 10;
         public uint columns = 10;
         
-        private TankPuzzle puzzle;
-        // El resolutor del puzle (que puede admitir varias estrategias)
+        private TankPuzzle puzzle;          // contiene la matriz logica que sera representada por el tablero de forma visual
+
         private TankPuzzleSolver solver;
-        private double time = 0.0d; // in seconds
+        private double time = 0.0d;
         private uint steps = 0;
-        private bool tankSelected = false;
-        private EdgeWeightedDigraph graph;
+
+        private bool tankSelected = false;  // indica si el tanque esta seleccionado actualmente
+        private EdgeWeightedDigraph graph;  // grafo dirigido y valorado hecho a partir de la matriz logica de puzzle
         
         private System.Random random;
 
@@ -48,8 +50,7 @@
 
         void Start() {
             random = new System.Random();
-
-            // Mientras que no requiera de las dimensiones del puzzle ni nada especial, se puede crear en el Start
+            
             solver = new TankPuzzleSolver();
 
             Initialize(rows, columns);
@@ -70,15 +71,16 @@
             rowsInput.text = rows.ToString();
             columnsInput.text = columns.ToString();
 
-            // Se crea el puzle internamente 
+            // Se crea el puzle internamente (matriz logica)
             puzzle = new TankPuzzle(rows, columns);
 
-            // Inicializar todo el tablero de bloques
+            // Se inicializa todo el tablero de casillas (representacion visual de la matriz logica) a partir de puzzle
             tablero.Initialize(this, puzzle);
 
             // Se crea el tanque
             tank.Initialize();
 
+            // se crea el grafo a partir de la matriz logica
             CreateGraph();
 
             CleanInfo();
@@ -86,11 +88,14 @@
             //UpdateInfo();
         }
 
+        // se crea el grafo a partir de la matriz logica
         private void CreateGraph()
         {
-            graph = new EdgeWeightedDigraph((int)(rows * columns));
+            graph = new EdgeWeightedDigraph((int)(rows * columns)); // adyacencias de cada casilla (derecha, abajo, izquierda, arriba)
             Vector2[] directions = { new Vector2( 0, 1 ), new Vector2( 1, 0 ), new Vector2( 0, -1 ), new Vector2( -1, 0 ) };
 
+            // si la casilla no es de tipo Roca, le establecemos union 
+            // con todas sus adyacentes que tampoco sean de tipo Roca
             for(int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < columns; j++)
@@ -116,57 +121,36 @@
             }
         }
 
-        
-
+        // teniendo el grafo construido, determina el camino a seguir con menor coste desde la posicion del tanque
+        // hasta la posicion p. Es llamado al seleccionar la casilla a la que queremos que vaya el tanque
         public IEnumerator createPath(Position p)
         {
             IndexedPriorityQueue<int> pq = new IndexedPriorityQueue<int>((int)(rows*columns));
-            Astar astar = new Astar();
+            Astar astar = new Astar(); // la posicion de origen sera la posicion logica del tanque
             astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()));
-            List<int> aux = astar.GetPathTo((int)(p.GetColumn()+p.GetRow()*columns));
 
-            for(int i = 1; i <= aux.Count; i++)
+            // una vez tenemos el camino, lo recorremos posicion a posicion hasta llegar al destino
+            // moviendo al tanque por cada una de las casillas intermedias
+            List<int> path = astar.GetPathTo((int)(p.GetColumn()+p.GetRow()*columns));
+            int r = 0, c = 0;
+
+            for(int i = 1; i <= path.Count; i++)
             {
-                int r = (int)(aux[aux.Count - i] / columns);
-                int c = (int)(aux[aux.Count - i] - r*columns);
+                r = (int)(path[path.Count - i] / columns);
+                c = (int)(path[path.Count - i] - r*columns);
                 if (r >= 0 || c >= 0)
                 {
-                    setTankPosition(tablero.getCasPos(r, c));
-                    yield return new WaitForSecondsRealtime(0.1f);
+                    setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
+                    yield return new WaitForSecondsRealtime(0.3f); // delay 
                 }
             }
+            puzzle.TankPosition = new Position((uint)r, (uint)c);  // posicion logica
         }
 
         // Pone los contadores de información a cero
         public void CleanInfo() {
             time = 0.0d;
             steps = 0;
-        }
-
-        // Devuelve cierto si un bloque se puede mover, si se lo permite el gestor
-        public bool CanMove(Casilla block) {
-            if (block == null) throw new ArgumentNullException(nameof(block));
-
-            return puzzle.CanMoveByDefault(block.position);
-        }
-
-        // Mueve un bloque, según las normas que diga el gestor
-        public Casilla Move(Casilla block) {
-            if (block == null) throw new ArgumentNullException(nameof(block));
-            if (!CanMove(block)) throw new InvalidOperationException("The required movement is not possible");
-
-            Position originPosition = block.position;
-
-            Debug.Log(ToString() + " moves " + block.ToString() + "."); 
-            var targetPosition = puzzle.MoveByDefault(block.position);
-            // Si hemos tenido éxito ha cambiado la matrix lógica del puzle... pero no ha cambiado la posición (lógica), ni la mía ni la del hueco. Toca hacerlo ahora
-            block.position = targetPosition;
-            Casilla targetBlock = tablero.GetCasilla(targetPosition);
-            targetBlock.position = originPosition;
-
-            //UpdateInfo();
-
-            return targetBlock;
         }
 
         // Actualiza la información del panel, mostrándolo si corresponde
@@ -211,11 +195,11 @@
             }
         }
 
+        // el tanque pasa de seleccionado a no seleccionado
         public void changeTankSelected()
         {
             tankSelected = !tankSelected;
             tank.UpdateColor();
-           
         }
 
         public bool isTankSelected()
@@ -223,6 +207,7 @@
             return tankSelected;
         }
 
+        // establece la posicion fisica del tanque
         public void setTankPosition(Vector3 pos)
         {
             tank.setPosition(pos);

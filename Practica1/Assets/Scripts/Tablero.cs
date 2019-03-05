@@ -6,7 +6,7 @@
     using Model;
     using System.Collections.Generic;
     
-    // tablero de casillas
+    // tablero de casillas (representacion grafica del juego)
     public class Tablero : MonoBehaviour {
 
         // Constantes
@@ -22,10 +22,6 @@
         private GameManager manager;
         
         private Casilla[,] casillas;
-        
-        /*private bool tankInMotion = false;
-        // Lista de bloques para ir moviendo (ojo, van de dos en dos... porque en C# 6 no hay tuplas todavía)
-        private Queue<Casilla> blocksInMotion = new Queue<Casilla>(); */
 
         public void Initialize(GameManager manager, TankPuzzle puzzle) {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
@@ -50,6 +46,7 @@
             GenerateCasillas(puzzle);
         }
 
+        // genera las casillas del tipo que le indique puzzle (matriz logica de tipos)
         private void GenerateCasillas(TankPuzzle puzzle)
         {
             if (puzzle == null) throw new ArgumentNullException(nameof(puzzle));
@@ -76,6 +73,7 @@
                     Position position = new Position(r, c);
                     casilla.position = position;
                     casilla.Initialize(this, puzzle.GetType(position));
+
                     if (!tankInitialized && puzzle.GetType(position) == 0)
                     {
                         GameManager.instance.setTankPosition(casilla.transform.position);
@@ -133,68 +131,9 @@
             return casillas[r, c].transform.position;
         }
 
-        /*// Devuelve si se puede mover un bloque en el tablero
-        public bool CanMove(Casilla block) {
-            if (block == null) throw new ArgumentNullException(nameof(block));
-
-            return manager.CanMove(block);
-        }
-
-        // Mueve un bloque en el tablero, devolviendo el otro bloque que ahora pasa a ocupar el lugar de este
-        // Si no se puede realizar el movimiento, da fallo
-        public Casilla Move(Casilla block, float delay) {
-            if (block == null) throw new ArgumentNullException(nameof(block));
-            if (!CanMove(block)) throw new InvalidOperationException("The required movement is not possible");
-
-            Debug.Log(ToString() + " moves " + block.ToString() + ".");
-
-            // Intercambio de valores entre las dos posiciones de la matriz de bloques?
-            Casilla otherBlock = manager.Move(block);
-            // Ya ha cambiado el puzle, y mi posición lógica (y la del hueco -otherBlock-)... faltan las posiciones físicas en la escena y ubicaciones en la matriz de bloques de ambos
-
-            // Cambio la ubicación en la matriz del bloque auxiliar para que sea la correcta
-            casillas[otherBlock.position.GetRow(), otherBlock.position.GetColumn()] = otherBlock;
-            // Cambio la ubicación en la matriz del bloque resultante para que sea la correcta
-            casillas[block.position.GetRow(), block.position.GetColumn()] = block;
-
-            // Los meto en la lista para que se muevan cuando corresponda...
-            blocksInMotion.Enqueue(block);
-            blocksInMotion.Enqueue(otherBlock);
-            // Debería meter el delay o marcar de alguna manera si el movimiento es de humano o máquina
-
-            return otherBlock;
-        }
-        
-        private void Update() {
-            if (!blockInMotion && blocksInMotion.Count > 0)  // Only start the coroutine if loading is false, meaning it hasn't already been started
-                // Se podría mostrar una animación de movimiento incluso, ya que las únicas restricciones de movimiento son las del modelo
-                StartCoroutine(BlockInMotion(USER_DELAY));
-        }
-
-        // Corrutina para pausar entre movimientos y poder verlos
-        IEnumerator BlockInMotion(float delay) {
-            blockInMotion = true;
-            // Animar tal vez las dos piezas...
-            yield return new WaitForSeconds(delay);
-
-            Casilla block = blocksInMotion.Dequeue();
-            Casilla otherBlock = blocksInMotion.Dequeue();
-            // Ya ha cambiando el puzle, la posición lógica y ubicación en la matriz de bloques de ambos bloques
-            // Sólo queda intercambiar la parte visual, la posición física de ambos en la escena 
-            //block.ExchangeTransform(otherBlock);
-
-            blockInMotion = false;
-        }*/
-
         // Pone los contadores de información a cero
         public void UserInteraction() {
             manager.CleanInfo();
-        }
-        
-        public Casilla GetCasilla(Position position) {
-                if (position == null) throw new ArgumentNullException(nameof(position));
-
-                return casillas[position.GetRow(), position.GetColumn()];
         }
 
         // Cadena de texto representativa

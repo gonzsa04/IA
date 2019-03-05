@@ -7,7 +7,7 @@
     public enum TipoCasilla { Libre, Agua, Barro, Rocas };
 
     // casilla que puede ser de tipo libre, agua, barro o rocas, 
-    // cada tipo con un valor y color distintos
+    // cada tipo con un valor y color distintos (representacion grafica)
     public class Casilla : MonoBehaviour
     {
         private Tablero tablero; // tablero de casillas
@@ -27,7 +27,7 @@
         // actualiza el color dependiendo del tipo de casilla que sea actualmente
         private void UpdateColor() { this.GetComponent<Renderer>().material.color = colors[(uint)this.type]; }
         
-        public Position position;
+        public Position position; // posicion logica dentro de la matriz logica de puzzle
         
         public void Initialize(Tablero tablero, uint type)
         {
@@ -40,8 +40,6 @@
             this.initialValue = this.value;
 
             UpdateColor();
-
-            Debug.Log(ToString() + " initialized.");
         }
         
         // al ser pulsado cambia al siguiente tipo (al llegar al ultimo da la vuelta)

@@ -48,14 +48,14 @@ namespace UCM.IAV.Puzzles.Model.AI {
                 HashSet<Operator> operators = new HashSet<Operator>();
 
                 // Esto se lee: Puedo mover el hueco hacia arriba, o puedo mover la pieza de arriba del hueco
-                if (puzzle.CanMoveUp(puzzle.TankPosition)) 
+                /*if (puzzle.CanMoveUp(puzzle.TankPosition)) 
                     operators.Add(TankPuzzleSolver.UP);
                 if (puzzle.CanMoveDown(puzzle.TankPosition))
                     operators.Add(TankPuzzleSolver.DOWN);
                 if (puzzle.CanMoveLeft(puzzle.TankPosition))
                     operators.Add(TankPuzzleSolver.LEFT);
                 if (puzzle.CanMoveRight(puzzle.TankPosition))
-                    operators.Add(TankPuzzleSolver.RIGHT);
+                    operators.Add(TankPuzzleSolver.RIGHT);*/
 
                 return operators;
             }
@@ -72,7 +72,7 @@ namespace UCM.IAV.Puzzles.Model.AI {
                 TankPuzzle puzzleClone = puzzle.DeepClone();
 
 
-                if (TankPuzzleSolver.UP.Equals(op))
+                /*if (TankPuzzleSolver.UP.Equals(op))
                     if (puzzleClone.CanMoveUp(puzzleClone.TankPosition))
                         puzzleClone.MoveUp(puzzleClone.TankPosition);
                     else // No puede ocurrir que el operador aplicable no funcione, porque ya se comprobó que era aplicable
@@ -94,7 +94,7 @@ namespace UCM.IAV.Puzzles.Model.AI {
                     if (puzzleClone.CanMoveRight(puzzleClone.TankPosition))
                         puzzleClone.MoveRight(puzzleClone.TankPosition);
                     else // No puede ocurrir que el operador aplicable no funcione, porque ya se comprobó que era aplicable
-                        throw new InvalidOperationException("This operator is not working propertly");
+                        throw new InvalidOperationException("This operator is not working propertly");*/
 
                 // Si el operador no se reconoce o es un NoOp, se devolverá la configuración actual (que sería idéntica a la original, no ha habido cambios)
                 return puzzleClone; 

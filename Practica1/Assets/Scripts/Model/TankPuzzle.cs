@@ -3,21 +3,19 @@
     using System;
     using UCM.IAV.Util;
     
+    // contendra una matriz logica del juego con los tipos (0 a 3) de las casillas
+    // que puede haber en el tablero (libre, agua, barro, rocas), elegidos aleatoriamente
     public class TankPuzzle : IDeepCloneable<TankPuzzle>
     {
-
         private System.Random rnd = new System.Random();
 
-        // Dimensión de las filas
-        public uint rows;
-        // Dimensión de las columnas
-        public uint columns;
-        
-        private uint[,] matrix; // matriz de tipos de cada casilla
-        
-        public Position TankPosition { get; set; }
+        public uint rows;                          // Dimensión de las filas       
+        public uint columns;                       // Dimensión de las columnas
 
-        private static readonly uint GAP_VALUE = 0u;
+        private uint[,] matrix;                    // matriz de tipos de cada casilla
+        
+        public Position TankPosition { get; set; } // posicion logica del tanque (casilla en la que esta)
+        
         private static readonly uint DEFAULT_ROWS = 3u;
         private static readonly uint DEFAULT_COLUMNS = 3u;
         
@@ -30,7 +28,7 @@
             this.Initialize(rows, columns);
         }
 
-        // crea una nueva matriz de rows * cols de tipos de casilla aleatorios
+        // crea una nueva matriz de rows * cols de tipos de casilla aleatorios (del 0 al 3)
         public void Initialize(uint rows, uint columns)
         {
             if (rows == 0) throw new ArgumentException(string.Format("{0} is not a valid rows value", rows), "rows");
@@ -57,9 +55,6 @@
             for (var r = 0u; r < rows; r++)
                 for (var c = 0u; c < columns; c++) 
                     matrix[r, c] = puzzle.matrix[r, c];
-            
-            if (puzzle.matrix[puzzle.TankPosition.GetRow(), puzzle.TankPosition.GetColumn()] != GAP_VALUE)
-                throw new ArgumentException(string.Format("{0} is not a valid rows value", rows), "rows");
 
             TankPosition = puzzle.TankPosition; 
         }
@@ -75,6 +70,7 @@
             return this.DeepClone();
         }
         
+        // devuelve el tipo de la casilla en esa posicion
         public uint GetType(Position position) {
             if (position == null) throw new ArgumentNullException(nameof(position));
             if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
@@ -83,168 +79,14 @@
             return matrix[position.GetRow(), position.GetColumn()];
         }
 
-        public void SetType(Position position, uint value)
+        // establece el tipo de la casilla en esa posicion
+        public void SetType(Position position, uint type)
         {
             if (position == null) throw new ArgumentNullException(nameof(position));
             if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
             if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
 
-            matrix[position.GetRow(), position.GetColumn()] = value;
-        }
-
-        // Devuelve cierto si es posible mover un valor desde una determinada posición a algunas de las colindantes
-        // En este caso, como no se especifica ninguna dirección a donde moverlo, el hueco no se considera un valor "movible" así en general. 
-        public bool CanMoveByDefault(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-
-            // El hueco no se puede mover directamente, sin especificar ninguna dirección
-            if (position.Equals(TankPosition))
-                return false;
-
-            return CanMoveUp(position) || CanMoveDown(position) || CanMoveLeft(position) || CanMoveRight(position);
-        }
-
-        // Mueve el valor de una posición, devolviendo la nueva posición si es cierto que se ha podido hacer el movimiento
-        // Los intentos para ver a que posición colindante se mueve el valor se realizan en este orden POR DEFECTO: arriba, abajo, izquierda y derecha. 
-        // En este caso, como no se especifica ninguna dirección a donde moverlo, el hueco no se considera un valor "movible por defecto" 
-        public Position MoveByDefault(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-            if (!CanMoveByDefault(position)) throw new InvalidOperationException("The required movement is not possible");
-
-            UnityEngine.Debug.Log(ToString() + " is moving " + position.ToString());
-
-            if (CanMoveUp(position))
-                return MoveUp(position);
-            if (CanMoveDown(position))
-                return MoveDown(position);
-            if (CanMoveLeft(position))
-                return MoveLeft(position);
-            //if (CanMoveRight(position)) Tiene que poderse mover a la derecha
-                return MoveRight(position); 
-        }
-
-        // Coloca el hueco en esta posición, y lo que hubiera en esa posición donde estaba el hueco (intercambio de valores entre esas dos posiciones)
-        // Para hacerlo público convendría comprobar que este movimiento tan directo -que es un intercambio, no un intento- es factible
-        private void Move(Position origin, Position target) {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (target == null) throw new ArgumentNullException(nameof(target));
-            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (target.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", target.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (target.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", target.GetColumn()), "column");
-
-            // Intercambio de valores entre las dos posiciones de la matriz
-            uint auxValue = GetType(origin);
-            matrix[origin.GetRow(), origin.GetColumn()] = matrix[target.GetRow(), target.GetColumn()]; // Al final aquí no pongo matrix[TankPosition.GetRow(), TankPosition.GetColumn()] ... ni directamente Tank_VALUE
-            matrix[target.GetRow(), target.GetColumn()] = auxValue;
-
-            // Para qué querría hacer esto?
-            // Intercambio de coordenadas entre las dos posiciones
-            // origin.Exchange(TankPosition);
-
-            // No hay que olvidarse de mantener la posición del hueco
-            if (auxValue.Equals(GAP_VALUE))
-                TankPosition = target;
-            else
-                TankPosition = origin; // Porque uno de los dos tiene que ser el hueco
-
-            UnityEngine.Debug.Log(ToString() + " sucessfully moved " + origin.ToString() + ".");
-        }
-
-        // Devuelve cierto si es posible mover un valor a la posición de arriba de una determinada posición (sea el hueco o no) 
-        public bool CanMoveUp(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-
-            return TankPosition.IsUp(position) || (TankPosition.Equals(position) && TankPosition.GetRow() > 0u);
-        }
-
-        // Mueve el valor que haya en la posición 'position' (sea hueco o no) a la posición de arriba, devolviendo dicha posición de destino   
-        // Falla si no es posible realizar el movimiento
-        public Position MoveUp(Position origin) {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (!CanMoveUp(origin)) throw new InvalidOperationException("The required movement is not possible");
-
-            Position target = origin.Up(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
-            UnityEngine.Debug.Log(ToString() + " is 'moving up' position " + origin.ToString() + " to " + target.ToString());
-            Move(origin, target);
-            return target;
-        }
-
-        // Devuelve cierto si es posible mover un valor a la posición de abajo de una determinada posición (sea el hueco o no) 
-        public bool CanMoveDown(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-
-            return TankPosition.IsDown(position) || (TankPosition.Equals(position) && TankPosition.GetRow() + 1u < rows);
-        }
-
-        // Mueve el valor que haya en la posición 'position' (sea hueco o no) a la posición de abajo, devolviendo dicha posición de destino   
-        // Falla si no es posible realizar el movimiento
-        public Position MoveDown(Position origin) {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (!CanMoveDown(origin)) throw new InvalidOperationException("The required movement is not possible");
-
-            Position target = origin.Down(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
-            UnityEngine.Debug.Log(ToString() + " is 'moving down' position " + origin.ToString() + " to " + target.ToString());
-            Move(origin, target);
-            return target;
-        }
-        
-        // Devuelve cierto si es posible mover un valor a la posición izquierda de una determinada posición (sea el hueco o no) 
-        public bool CanMoveLeft(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-
-            return TankPosition.IsLeft(position) || (TankPosition.Equals(position) && TankPosition.GetColumn() > 0u);
-        }
-
-        // Mueve el valor que haya en la posición 'position' (sea hueco o no) a la posición de la izquierda, devolviendo dicha posición de destino   
-        // Falla si no es posible realizar el movimiento
-        public Position MoveLeft(Position origin) {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (!CanMoveLeft(origin)) throw new InvalidOperationException("The required movement is not possible");
-
-            Position target = origin.Left(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
-            UnityEngine.Debug.Log(ToString() + " is 'moving left' position " + origin.ToString() + " to " + target.ToString());
-            Move(origin, target);
-            return target;
-        }
-        
-        // Devuelve cierto si es posible mover un valor a la posición derecha de una determinada posición (sea el hueco o no) 
-        public bool CanMoveRight(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
-
-            return TankPosition.IsRight(position) || (TankPosition.Equals(position) && TankPosition.GetColumn() + 1u < columns);
-        }
-
-        // Mueve el valor que haya en la posición 'position' (sea hueco o no) a la posición de la derecha, devolviendo dicha posición de destino   
-        // Falla si no es posible realizar el movimiento
-        public Position MoveRight(Position origin) {
-            if (origin == null) throw new ArgumentNullException(nameof(origin));
-            if (origin.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", origin.GetRow()), "row");
-            if (origin.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", origin.GetColumn()), "column");
-            if (!CanMoveRight(origin)) throw new InvalidOperationException("The required movement is not possible");
-
-            Position target = origin.Right(); // Ya hemos comprobado que es posible el movimiento y por tanto existe la posición de destino
-            UnityEngine.Debug.Log(ToString() + " is 'moving right' position " + origin.ToString() + " to " + target.ToString());
-            Move(origin, target);
-            return target;
+            matrix[position.GetRow(), position.GetColumn()] = type;
         }
         
         public override bool Equals(object o) {

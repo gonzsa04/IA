@@ -1,6 +1,5 @@
 ﻿namespace UCM.IAV.Puzzles
 {
-
     using System;
     using UnityEngine;
     using Model;
