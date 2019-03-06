@@ -33,12 +33,13 @@
         public uint columns = 10;
         
         private TankPuzzle puzzle;          // contiene la matriz logica que sera representada por el tablero de forma visual
-
-        private TankPuzzleSolver solver;
+        
         private double time = 0.0d;
         private uint steps = 0;
 
         private bool tankSelected = false;  // indica si el tanque esta seleccionado actualmente
+        private bool tankMoving = false;
+
         private EdgeWeightedDigraph graph;  // grafo dirigido y valorado hecho a partir de la matriz logica de puzzle
         
         private System.Random random;
@@ -50,8 +51,6 @@
 
         void Start() {
             random = new System.Random();
-            
-            solver = new TankPuzzleSolver();
 
             Initialize(rows, columns);
         }
@@ -121,6 +120,34 @@
             }
         }
 
+        public void updateGraph(TipoCasilla type, TipoCasilla prevType, double value, double prevValue, int r, int c)
+        {
+            Vector2[] directions = { new Vector2(0, 1), new Vector2(1, 0), new Vector2(0, -1), new Vector2(-1, 0) };
+            foreach (Vector2 v in directions)
+            {
+                int ni = r + (int)v.y;
+                int nj = c + (int)v.x;
+
+                if (ni >= 0 && ni < rows && nj >= 0 && nj < columns)
+                {
+                    if (type == TipoCasilla.Rocas)
+                    {
+                        graph.deleteEdge(new DirectedEdge((int)(c + r * columns), (int)(nj + ni * columns), tablero.getCasValue(ni, nj)));
+                        graph.deleteEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), prevValue));
+                    }
+                    else if (prevType != TipoCasilla.Rocas)
+                    {
+                        graph.modifyEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), prevValue), value);
+                    }
+                    else
+                    {
+                        graph.AddEdge(new DirectedEdge((int)(c + r * columns), (int)(nj + ni * columns), tablero.getCasValue(ni, nj)));
+                        graph.AddEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), value));
+                    }
+                }
+            }
+        }
+
         // teniendo el grafo construido, determina el camino a seguir con menor coste desde la posicion del tanque
         // hasta la posicion p. Es llamado al seleccionar la casilla a la que queremos que vaya el tanque
         public IEnumerator createPath(Position p)
@@ -133,18 +160,24 @@
             // moviendo al tanque por cada una de las casillas intermedias
             List<int> path = astar.GetPathTo((int)(p.GetColumn()+p.GetRow()*columns));
             int r = 0, c = 0;
+            int i = path.Count - 1;
 
-            for(int i = 1; i <= path.Count; i++)
+            tankMoving = true;
+
+            while (i >= 0 && path[i] >= 0)
             {
-                r = (int)(path[path.Count - i] / columns);
-                c = (int)(path[path.Count - i] - r*columns);
-                if (r >= 0 || c >= 0)
-                {
-                    setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
-                    yield return new WaitForSecondsRealtime(0.3f); // delay 
-                }
+                r = (int)(path[i] / columns);
+                c = (int)(path[i] - r * columns);
+                setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
+                yield return new WaitForSecondsRealtime(0.3f); // delay 
+                i--;
             }
-            puzzle.TankPosition = new Position((uint)r, (uint)c);  // posicion logica
+
+            if (i < 0)
+                puzzle.TankPosition = new Position((uint)r, (uint)c);  // posicion logica
+            else Debug.Log("No se pué");
+            tankMoving = false;
+            changeTankSelected();
         }
 
         // Pone los contadores de información a cero
@@ -207,53 +240,16 @@
             return tankSelected;
         }
 
+        public bool isTankMoving()
+        {
+            return tankMoving;
+        }
+
         // establece la posicion fisica del tanque
         public void setTankPosition(Vector3 pos)
         {
             tank.setPosition(pos);
         }
-
-        /*// Muestra la solución obtenida paso a paso y con una animación
-        private void ShowSolution(List<Operator> operators, Metrics metrics) {
-            // el resultado lo tenemos que mostrar de manera animada, haciendo acción tras acción 
-            foreach (Operator op in operators) {
-                Position position = solver.GetOperatedPosition(puzzle, op);
-                tablero.Move(tablero.GetCasilla(position), Tablero.AI_DELAY);
-                Debug.Log("Applying " + op.ToString() + " operator");
-            }
-
-            steps = Convert.ToUInt32(operators.Count);
-
-            UpdateInfo();
-
-        // Mostrar tanto el resultado como las métricas... lo mismo incluso paso a paso y en otro color, para diferenciar cómo quedan al terminar :-)
-        //...las métricas pintarlas pintar por la pantalla o en fichero
-        Debug.Log("Métrics: " + metrics.ToString()); // hacer bucle para mostrarlas todas
-        }*/
-
-        public void SolvePuzzleByBFS() {
-
-            // Si está correcto, no lo resuelvo (o lo puedo llamar igualmente y que me devuelva una solución vacía, ok?
-            //if (!puzzle.IsInDefaultOrder()) {       }
-            // El resolutor ya está construido porque no requiere nada
-            time = Time.realtimeSinceStartup;
-            List<Operator> operators = solver.Solve(puzzle, TankPuzzleSolver.Strategy.BFS);
-            time = Time.realtimeSinceStartup - time;
-            // Crear una estructura para las metrics, algo menos libre... con campos
-            Metrics metrics = solver.GetMetrics();
-            //ShowSolution(operators, metrics);
-        }
-
-        public void SolvePuzzleByDFS() {
-            // El resolutor ya está construido porque no requiere nada
-            time = Time.realtimeSinceStartup;
-            List<Operator> operators = solver.Solve(puzzle, TankPuzzleSolver.Strategy.DFS);
-            time = Time.realtimeSinceStartup - time;
-            // Crear una estructura para las metrics, algo menos libre... con campos
-            Metrics metrics = solver.GetMetrics();
-            //ShowSolution(operators, metrics);
-        }
-
 
         // Salir de la aplicación
         public void Quit() {

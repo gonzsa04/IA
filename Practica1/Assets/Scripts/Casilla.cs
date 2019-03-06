@@ -16,7 +16,6 @@
         private Color[] colors = { Color.gray, new Color(0.05f, 0.35f, 0.6f, 0),
             new Color(0.6f, 0.3f, 0.1f, 0), new Color(0.3f, 0.25f, 0.2f, 0) };
 
-        private double[] values = { 1, 2, 4, 1000 };
 
         // tipo, tipo inicial y valor, valor inicial
         private TipoCasilla type;
@@ -28,6 +27,7 @@
         private void UpdateColor() { this.GetComponent<Renderer>().material.color = colors[(uint)this.type]; }
         
         public Position position; // posicion logica dentro de la matriz logica de puzzle
+        public double[] values = { 1, 2, 4, 1000 };
         
         public void Initialize(Tablero tablero, uint type)
         {
@@ -47,19 +47,25 @@
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
-            if (GameManager.instance.isTankSelected())
+            if (!GameManager.instance.isTankMoving())
             {
-                if (this.type != TipoCasilla.Rocas) StartCoroutine(GameManager.instance.createPath(this.position));
-                GameManager.instance.changeTankSelected();
-            }
-            else
-            {
-                if ((uint)this.type + 1 > 3) this.type = (TipoCasilla)0;
-                else this.type++;
-                this.value = values[(uint)this.type];
+                if (GameManager.instance.isTankSelected())
+                {
+                    if (this.type != TipoCasilla.Rocas)
+                        StartCoroutine(GameManager.instance.createPath(this.position));
+                }
+                else
+                {
+                    double prevValue = this.value;
+                    TipoCasilla prevType = this.type;
+                    if ((uint)this.type + 1 > 3) this.type = (TipoCasilla)0;
+                    else this.type++;
+                    this.value = values[(uint)this.type];
 
-                UpdateColor();
+                    UpdateColor();
 
+                    GameManager.instance.updateGraph(this.type, prevType, this.value, prevValue, (int)this.position.GetRow(), (int)this.position.GetColumn());
+                }
             }
                 return false;
         }
@@ -70,7 +76,10 @@
         public uint getInitialType() { return (uint)this.initialType; }
 
         // establece su valor, tipo y color a los iniciales
-        public void Reset() { this.value = this.initialValue; this.type = this.initialType; UpdateColor(); }
+        public void Reset() {
+            GameManager.instance.updateGraph(this.initialType, this.type, this.initialValue, this.value, (int)this.position.GetRow(), (int)this.position.GetColumn());
+            this.value = this.initialValue; this.type = this.initialType; UpdateColor();
+        }
 
         // Cadena de texto representativa
         public override string ToString()

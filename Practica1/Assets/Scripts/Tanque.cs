@@ -21,7 +21,8 @@
 
         public void OnMouseUpAsButton()
         {
-            GameManager.instance.changeTankSelected();
+            if (!GameManager.instance.isTankMoving())
+                GameManager.instance.changeTankSelected();
         }
 
         public void Reset()

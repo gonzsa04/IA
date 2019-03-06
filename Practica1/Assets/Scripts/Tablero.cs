@@ -77,7 +77,8 @@
                     if (!tankInitialized && puzzle.GetType(position) == 0)
                     {
                         GameManager.instance.setTankPosition(casilla.transform.position);
-                        puzzle.TankPosition = new Position(r, c);
+                        puzzle.InitialTankPosition = new Position(r, c);
+                        puzzle.TankPosition = puzzle.InitialTankPosition;
                         tankInitialized = true;
                     }
                     Debug.Log(ToString() + "generated " + casilla.ToString() + ".");
@@ -114,6 +115,7 @@
                     puzzle.SetType(new Position(r, c), casillas[r, c].getInitialType());
                 }
             }
+            puzzle.TankPosition = puzzle.InitialTankPosition;
         }
 
         public double getCasValue(int r, int c)

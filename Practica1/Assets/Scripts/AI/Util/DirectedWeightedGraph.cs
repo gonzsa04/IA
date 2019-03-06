@@ -96,6 +96,35 @@ namespace UCM.IAV.IA.Util
             _e++;
         }
 
+        public void deleteEdge(DirectedEdge e)
+        {
+            var node = _adj[e.From()].First;
+            while (node != null)
+            {
+                var nextNode = node.Next;
+                if (node.Value.From() == e.From() && node.Value.To() == e.To())
+                {
+                    _adj[e.From()].Remove(node);
+                }
+                node = nextNode;
+            }
+        }
+
+        public void modifyEdge(DirectedEdge e, double value)
+        {
+            var node = _adj[e.From()].First;
+            while (node != null)
+            {
+                var nextNode = node.Next;
+                if (node.Value.From() == e.From() && node.Value.To() == e.To())
+                {
+                    _adj[e.From()].Remove(node);
+                    _adj[e.From()].AddFirst(new DirectedEdge(e.From(), e.To(), value));
+                }
+                node = nextNode;
+            }
+        }
+
         //Iterate through the vertices linked lists
         public IEnumerable<DirectedEdge> Adj(int v)
         {

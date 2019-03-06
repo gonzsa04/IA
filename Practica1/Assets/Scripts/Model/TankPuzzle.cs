@@ -15,6 +15,7 @@
         private uint[,] matrix;                    // matriz de tipos de cada casilla
         
         public Position TankPosition { get; set; } // posicion logica del tanque (casilla en la que esta)
+        public Position InitialTankPosition { get; set; } // posicion logica inicial del tanque
         
         private static readonly uint DEFAULT_ROWS = 3u;
         private static readonly uint DEFAULT_COLUMNS = 3u;
@@ -43,32 +44,6 @@
                 for (var c = 0u; c < columns; c++)
                     matrix[r, c] = (uint)rnd.Next(0, 4);
         }
-
-        // copia un juego recibido
-        public TankPuzzle(TankPuzzle puzzle) {
-            if (puzzle == null) throw new ArgumentNullException(nameof(puzzle));
-
-            this.rows = puzzle.rows;
-            this.columns = puzzle.columns;
-            
-            matrix = new uint[rows, columns];
-            for (var r = 0u; r < rows; r++)
-                for (var c = 0u; c < columns; c++) 
-                    matrix[r, c] = puzzle.matrix[r, c];
-
-            TankPosition = puzzle.TankPosition; 
-        }
-
-        // Devuelve este objeto clonado a nivel profundo
-        public TankPuzzle DeepClone() {
-            // Uso el constructor de copia para generar un clon
-            return new TankPuzzle(this);
-        }
-
-        // Devuelve este objeto de tipo TankPuzzle clonado a nivel profundo 
-        object IDeepCloneable.DeepClone() {
-            return this.DeepClone();
-        }
         
         // devuelve el tipo de la casilla en esa posicion
         public uint GetType(Position position) {
@@ -88,34 +63,36 @@
 
             matrix[position.GetRow(), position.GetColumn()] = type;
         }
-        
-        public override bool Equals(object o) {
-            return Equals(o as TankPuzzle);
-        }
-        
-        public bool Equals(TankPuzzle puzzle) {
-            if (puzzle == null || puzzle.rows != rows || puzzle.columns != columns) {
-                return false;
-            }
-            
-            for (uint r = 0; r < rows; r++)
-                for (uint c = 0; c < columns; c++)
-                    if (!matrix[r, c].Equals(puzzle.matrix[r, c]))
-                        return false;
 
-            return true;
-        }
-        
-        public override int GetHashCode() {
-            int result = 17;
+        // copia un juego recibido
+        public TankPuzzle(TankPuzzle puzzle)
+        {
+            if (puzzle == null) throw new ArgumentNullException(nameof(puzzle));
 
-            for (uint r = 0; r < rows; r++)
-                for (uint c = 0; c < columns; c++)
-                    result = 37 * result + Convert.ToInt32(matrix[r, c]);
+            this.rows = puzzle.rows;
+            this.columns = puzzle.columns;
 
-            return result;
+            matrix = new uint[rows, columns];
+            for (var r = 0u; r < rows; r++)
+                for (var c = 0u; c < columns; c++)
+                    matrix[r, c] = puzzle.matrix[r, c];
+
+            TankPosition = puzzle.TankPosition;
         }
-        
+
+        // Devuelve este objeto clonado a nivel profundo
+        public TankPuzzle DeepClone()
+        {
+            // Uso el constructor de copia para generar un clon
+            return new TankPuzzle(this);
+        }
+
+        // Devuelve este objeto de tipo TankPuzzle clonado a nivel profundo 
+        object IDeepCloneable.DeepClone()
+        {
+            return this.DeepClone();
+        }
+
         public override string ToString() {
             return "Puzzle{" + string.Join(",", matrix) + "}";
         }
