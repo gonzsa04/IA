@@ -46,22 +46,20 @@
         }
         
         // devuelve el tipo de la casilla en esa posicion
-        public uint GetType(Position position) {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+        public int GetType(int r, int c) {
+            if (r >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", r), "row");
+            if (c >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", c), "column");
             
-            return matrix[position.GetRow(), position.GetColumn()];
+            return (int)matrix[r, c];
         }
 
         // establece el tipo de la casilla en esa posicion
-        public void SetType(Position position, uint type)
+        public void SetType(int r, int c, uint type)
         {
-            if (position == null) throw new ArgumentNullException(nameof(position));
-            if (position.GetRow() >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", position.GetRow()), "row");
-            if (position.GetColumn() >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", position.GetColumn()), "column");
+            if (r >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", r), "row");
+            if (c >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", c), "column");
 
-            matrix[position.GetRow(), position.GetColumn()] = type;
+            matrix[r, c] = type;
         }
 
         // copia un juego recibido

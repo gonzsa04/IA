@@ -4,8 +4,6 @@
     using UnityEngine;
     using Model;
 
-    public enum TipoCasilla { Libre, Agua, Barro, Rocas };
-
     // casilla que puede ser de tipo libre, agua, barro o rocas, 
     // cada tipo con un valor y color distintos (representacion grafica)
     public class Casilla : MonoBehaviour
@@ -27,7 +25,6 @@
         private void UpdateColor() { this.GetComponent<Renderer>().material.color = colors[(uint)this.type]; }
         
         public Position position; // posicion logica dentro de la matriz logica de puzzle
-        public double[] values = { 1, 2, 4, 1000 };
         
         public void Initialize(Tablero tablero, uint type)
         {
@@ -36,7 +33,7 @@
             this.tablero = tablero;
             this.type = (TipoCasilla)type;
             this.initialType = this.type;
-            this.value = values[type];
+            this.value = GameManager.instance.values[type];
             this.initialValue = this.value;
 
             UpdateColor();
@@ -47,24 +44,30 @@
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
+            // si el tanque no esta ya en movimiento
             if (!GameManager.instance.isTankMoving())
-            {
+            { 
+                // si el tanque esta seleccionado, empezamos a moverlo (esta casilla sera el destino)
                 if (GameManager.instance.isTankSelected())
                 {
                     if (this.type != TipoCasilla.Rocas)
-                        StartCoroutine(GameManager.instance.createPath(this.position));
+                        StartCoroutine(GameManager.instance.createPath((int)this.position.GetRow(), (int)this.position.GetColumn()));
+                    else StartCoroutine(GameManager.instance.changeCanMove());
                 }
+                // si no, esta casilla cambiara al tipo correspondiente
                 else
                 {
                     double prevValue = this.value;
                     TipoCasilla prevType = this.type;
+
                     if ((uint)this.type + 1 > 3) this.type = (TipoCasilla)0;
                     else this.type++;
-                    this.value = values[(uint)this.type];
+                    this.value = GameManager.instance.values[(uint)this.type];
 
                     UpdateColor();
 
-                    GameManager.instance.updateGraph(this.type, prevType, this.value, prevValue, (int)this.position.GetRow(), (int)this.position.GetColumn());
+                    GameManager.instance.updatePuzzle(this.type, (int)this.position.GetRow(), (int)this.position.GetColumn());
+                    GameManager.instance.updateGraph(prevType, prevValue, (int)this.position.GetRow(), (int)this.position.GetColumn());
                 }
             }
                 return false;
@@ -77,7 +80,7 @@
 
         // establece su valor, tipo y color a los iniciales
         public void Reset() {
-            GameManager.instance.updateGraph(this.initialType, this.type, this.initialValue, this.value, (int)this.position.GetRow(), (int)this.position.GetColumn());
+            GameManager.instance.updateGraph(this.type, this.value, (int)this.position.GetRow(), (int)this.position.GetColumn());
             this.value = this.initialValue; this.type = this.initialType; UpdateColor();
         }
 
