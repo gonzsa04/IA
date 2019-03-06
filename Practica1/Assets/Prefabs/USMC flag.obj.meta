@@ -47,7 +47,37 @@ ModelImporter:
     4300008: GeoSphere002
     4300010: GeoSphere003
     4300012: Plane001
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cylinder001Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cylinder002Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GeoSphere001Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GeoSphere002Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GeoSphere003Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plane001Mat
+    second: {fileID: 2100000, guid: 9703634993e41b04a8bd034463c0666d, type: 2}
   materials:
     importMaterials: 1
     materialName: 0

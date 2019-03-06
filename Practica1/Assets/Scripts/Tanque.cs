@@ -19,6 +19,11 @@
             this.transform.position = new Vector3(pos.x, this.transform.position.y, pos.z);
         }
 
+        public void setRotation(Vector3 rot)
+        {
+            this.transform.rotation = Quaternion.Euler(new Vector3(this.transform.rotation.eulerAngles.x, rot.y, rot.z));
+        }
+
         public void OnMouseUpAsButton()
         {
             if (!GameManager.instance.isTankMoving())

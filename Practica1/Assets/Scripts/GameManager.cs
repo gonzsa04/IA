@@ -198,7 +198,11 @@
                 r = (int)(path[i] / columns);
                 c = (int)(path[i] - r * columns);
                 setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
-                if(i > 0)Destroy(markers[markers.Count - i].gameObject);
+                if (i > 0)
+                {
+                    setTankRotation(markers[markers.Count - i].transform.rotation.eulerAngles);
+                    Destroy(markers[markers.Count - i].gameObject);
+                }
                 i--;
                 steps++;
                 UpdateInfo();
@@ -220,7 +224,7 @@
             int i = path.Count - 1;
 
             Quaternion rot = Quaternion.Euler(0, 0, 0);
-            while (i > 0 && path[i] > 0)
+            while (i >= 0 && path[i] >= 0)
             {
                 r = (int)(path[i] / columns);
                 c = (int)(path[i] - r * columns);
@@ -243,6 +247,8 @@
                 }
                 i--;
             }
+            Destroy(markers[markers.Count + i].gameObject);
+            markers.Remove(markers[markers.Count + i]);
         }
 
         public IEnumerator changeCanMove()
@@ -321,6 +327,10 @@
         public void setTankPosition(Vector3 pos)
         {
             tank.setPosition(pos);
+        }
+        public void setTankRotation(Vector3 rot)
+        {
+            tank.setRotation(rot);
         }
 
         // Salir de la aplicación
