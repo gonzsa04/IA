@@ -13,19 +13,27 @@ namespace UCM.IAV.IA.Util
         private readonly int _v;//The source vertex
         private readonly int _w;//The target vertex
         private readonly double _weight;//The weight to go from _v to _w
+        private readonly double _heuristic;//The heuristic(prediction) to go from _v to _end
 
         //Create a directed edge from v to w with weight 'weight'
-        public DirectedEdge(int v, int w, double weight)
+        public DirectedEdge(int v, int w, double weight, double heuristic = 0)
         {
             this._v = v;
             this._w = w;
             this._weight = weight;
+            this._heuristic = heuristic;
         }
 
         //Return the weight
         public double Weight()
         {
             return _weight;
+        }
+
+        //Return the weight
+        public double Heuristic()
+        {
+            return _heuristic;
         }
 
         //Return the source vertex
@@ -43,7 +51,7 @@ namespace UCM.IAV.IA.Util
         //Return a string representation of the edge
         public override string ToString()
         {
-            return string.Format("{0:d}->{1:d} {2:f}", _v, _w, _weight);
+            return string.Format("{0:d}->{1:d} , w {2:f} , h {3:f}", _v, _w, _weight, _heuristic);
         }
     }
 
@@ -110,7 +118,7 @@ namespace UCM.IAV.IA.Util
             }
         }
 
-        public void modifyEdge(DirectedEdge e, double value)
+        public void modifyEdge(DirectedEdge e)
         {
             var node = _adj[e.From()].First;
             while (node != null)
@@ -119,7 +127,7 @@ namespace UCM.IAV.IA.Util
                 if (node.Value.From() == e.From() && node.Value.To() == e.To())
                 {
                     _adj[e.From()].Remove(node);
-                    _adj[e.From()].AddFirst(new DirectedEdge(e.From(), e.To(), value));
+                    _adj[e.From()].AddFirst(e);
                 }
                 node = nextNode;
             }

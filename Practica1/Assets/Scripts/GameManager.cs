@@ -15,6 +15,7 @@
     using UCM.IAV.IA.Util;
 
     public enum TipoCasilla { Libre, Agua, Barro, Rocas };
+    public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
     // gestiona el juego del tanque
     public class GameManager : MonoBehaviour {
@@ -27,9 +28,10 @@
         public GameObject markerPrefab;     // marcador que va indicando al tanque por donde ir
                      
         // Interfaz
-        public GameObject infoPanel;
         public Text timeNumber;
         public Text stepsNumber;
+        public Text costNumber;
+        public Text edgesNumber;
         public InputField rowsInput;
         public InputField columnsInput;
         public Text cantMove;
@@ -43,14 +45,16 @@
         
         private double time = 0.0d;
         private uint steps = 0;
+        private double cost = 0;
+        private int edges = 0;
 
         private bool tankSelected = false;  // indica si el tanque esta seleccionado actualmente
         private bool tankMoving = false;
 
         private EdgeWeightedDigraph graph;  // grafo dirigido y valorado hecho a partir de la matriz logica de puzzle
+        private TipoHeuristicas H = TipoHeuristicas.SINH;
 
         private Vector3 IniPosFlag;
-        private System.Random random;
 
         void Awake()
         {
@@ -58,7 +62,6 @@
         }
 
         void Start() {
-            random = new System.Random();
             IniPosFlag = flag.transform.position;
             Initialize(rows, columns);
         }
@@ -67,7 +70,6 @@
         private void Initialize(uint rows, uint columns) {
             if (tablero == null) throw new InvalidOperationException("The board reference is null");
             if (tank == null) throw new InvalidOperationException("The board reference is null");
-            if (infoPanel == null) throw new InvalidOperationException("The infoPanel reference is null");
             if (timeNumber == null) throw new InvalidOperationException("The timeNumber reference is null");
             if (stepsNumber == null) throw new InvalidOperationException("The stepsNumber reference is null");
             if (rowsInput == null) throw new InvalidOperationException("The rowsInputText reference is null");
@@ -147,7 +149,7 @@
                     }
                     else if (prevType != TipoCasilla.Rocas)
                     {
-                        graph.modifyEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), prevValue), values[puzzle.GetType(r, c)]);
+                        graph.modifyEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), values[puzzle.GetType(r, c)]));
                     }
                     else
                     {
@@ -176,13 +178,14 @@
             IndexedPriorityQueue<int> pq = new IndexedPriorityQueue<int>((int)(rows*columns));
             Astar astar = new Astar(); // la posicion de origen sera la posicion logica del tanque
             time = Time.realtimeSinceStartup;
-            astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()));
+            astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()), (int)(y + columns*x), H);
             time = Time.realtimeSinceStartup - time;
+            edges = astar.GetEdgesEX();
             UpdateInfo();
 
             // una vez tenemos el camino, lo recorremos posicion a posicion hasta llegar al destino
             // moviendo al tanque por cada una de las casillas intermedias
-            List<int> path = astar.GetPathTo((int)(y + x * columns));
+            List<int> path = astar.GetPath();
 
             List<GameObject> markers = new List<GameObject>();
             setPathMarkers(path, ref markers);
@@ -205,6 +208,7 @@
                 }
                 i--;
                 steps++;
+                cost += values[puzzle.GetType(r, c)];
                 UpdateInfo();
                 yield return new WaitForSecondsRealtime(0.3f); // delay 
             }
@@ -224,7 +228,7 @@
             int i = path.Count - 1;
 
             Quaternion rot = Quaternion.Euler(0, 0, 0);
-            while (i >= 0 && path[i] >= 0)
+            while (i >/*=*/ 0 && path[i] >/*=*/ 0)
             {
                 r = (int)(path[i] / columns);
                 c = (int)(path[i] - r * columns);
@@ -247,8 +251,8 @@
                 }
                 i--;
             }
-            Destroy(markers[markers.Count + i].gameObject);
-            markers.Remove(markers[markers.Count + i]);
+            //Destroy(markers[markers.Count + i].gameObject);
+            //markers.Remove(markers[markers.Count + i]);
         }
 
         public IEnumerator changeCanMove()
@@ -262,6 +266,8 @@
         private void CleanInfo() {
             time = 0.0d;
             steps = 0;
+            cost = 0;
+            edges = 0;
         }
 
         // Actualiza la información del panel, mostrándolo si corresponde
@@ -269,16 +275,20 @@
         {
             timeNumber.text = (time * 1000).ToString("0.0"); // Lo enseñamos en milisegundos y sólo con un decimal
             stepsNumber.text = steps.ToString();
+            costNumber.text = cost.ToString();
+            edgesNumber.text = edges.ToString();
         }
 
         // restablece la config inicial del juego (tanto en la matriz fisica de casillas como en la logica)
         // si no se han cambiado sus dimensiones si se han cambiado, se crea un juego nuevo
-        public void ResetPuzzle() {
-            CleanInfo();
-            UpdateInfo();
-            flag.transform.position = IniPosFlag;
+        public void ResetPuzzle()
+        {
+            if (!isTankMoving() && rowsInput.text != null && columnsInput.text != null)
+            {
+                CleanInfo();
+                UpdateInfo();
+                flag.transform.position = IniPosFlag;
 
-            if (rowsInput.text != null && columnsInput.text != null) {
                 uint newRows = Convert.ToUInt32(rowsInput.text);
                 uint newColumns = Convert.ToUInt32(columnsInput.text);
 
@@ -291,11 +301,13 @@
                 }
             }
         }
-        
-        // se crea un juego nuevo con casillas aleatorias
-        public void RandomPuzzle() {
 
-            if (rowsInput.text != null && columnsInput.text != null) {
+        // se crea un juego nuevo con casillas aleatorias
+        public void RandomPuzzle()
+        {
+
+            if (!isTankMoving() && rowsInput.text != null && columnsInput.text != null)
+            {
                 uint newRows = Convert.ToUInt32(rowsInput.text);
                 uint newColumns = Convert.ToUInt32(columnsInput.text);
 
@@ -332,6 +344,14 @@
         {
             tank.setRotation(rot);
         }
+
+        public void H1() { H = TipoHeuristicas.H1; }
+
+        public void H2() { H = TipoHeuristicas.H2; }
+
+        public void H3() { H = TipoHeuristicas.H3; }
+
+        public void NOH() { H = TipoHeuristicas.SINH; }
 
         // Salir de la aplicación
         public void Quit() {
