@@ -18,46 +18,79 @@
     // las aristas ordenadas por prioridad (menor coste)
     class Astar
     {
-        private List<DirectedEdge> edgeTo; // lista de aristas a seguir para llegar desde un vertice del grafo al origen consultado
-        private List<double> distTo;          // lista de distancias desde cada vertice del grafo al origen consultado
-        private int start, fin;                 // origen desde el cual se consulta el camino a seguir
+        private List<NodeCool> edgeTo; // lista de nodos a seguir para llegar desde un vertice del grafo al origen consultado
+        private List<int> path;
+        private int s_, f_;                 // origen desde el cual se consulta el camino a seguir
         private int edgesExpanded = 0;
 
-        public void Init(EdgeWeightedDigraph G, ref IndexedPriorityQueue<int> pq, int s = 0, int f = 0, TipoHeuristicas H = TipoHeuristicas.SINH)
+        public void Init(EdgeWeightedDigraph G, ref List<NodeCool> pq, int s = 0, int f = 0, TipoHeuristicas H = TipoHeuristicas.SINH)
         {
             // inicializacion de variables
-            start = s;
-            fin = f;
-            edgeTo = new List<DirectedEdge>();
-            distTo = new List<double>();
-            DirectedEdge auxE = new DirectedEdge(-1, -1, 1e9);
-            for (int v = 0; v < G.V(); v++)
+            s_ = s;
+            f_ = f;
+
+            edgeTo = new List<NodeCool>();
+
+            for (int i = 0; i < G.V(); i++)
             {
-                distTo.Insert(v, (int)1e9);
-                edgeTo.Insert(v, auxE);
+                NodeCool aux = new NodeCool();
+                aux.SetPos(i);
+                edgeTo.Add(aux);
             }
 
-            // la distancia al origen sera 0, y el valor de su arista tambien
-            distTo[start] = 0;
-            edgeTo[start] = new DirectedEdge(start, start, 0);
-            pq.insert(start, (int)Math.Ceiling(distTo[start])); // introducimos la primera arista en la indexpq
+            edgeTo[s_] = new NodeCool();
+            edgeTo[s_].SetPos(s_);
+            edgeTo[s_].SetGCost(0.0);
+            edgeTo[s_].SetFCost(edgeTo[s_].GetGCost() + heuristic(H, edgeTo[s_]));
+
+            pq.Add(edgeTo[s_]); // introducimos la primera arista en la indexpq
 
             // hasta que la indexpq no quede vacia de aristas vamos sacando la de menor coste
             // y actualizamos los caminos y distancias en caso de ser necesario
             while (pq.Count != 0)
             {
-                int v = (int)pq.Pop();
-                foreach (DirectedEdge e in G.Adj(v))
+                int current = pq.First().GetPos();
+
+                if (current == f_)
                 {
-                    DirectedEdge aux = e;
-                    heuristic(H, ref aux);
-                    relax(aux, ref pq);
+                    path = edgeTo[current].GetPathFromRoot();
+                    break;
                 }
-                    edgesExpanded++;
+
+                pq.Remove(edgeTo[current]);
+
+                edgeTo[current].SetClosed(true);
+
+                foreach (DirectedEdge e in G.Adj(edgeTo[current].GetPos()))
+                {
+                    int neighbour = e.To();
+
+                    if (!edgeTo[neighbour].GetClosed())
+                    {
+                        double gcost = edgeTo[current].GetGCost() + e.Weight();
+
+                        if (!pq.Contains(edgeTo[neighbour]))
+                        {
+                            edgeTo[neighbour].SetParent(edgeTo[current]);
+                            edgeTo[neighbour].SetGCost(gcost);
+                            edgeTo[neighbour].SetFCost(gcost + heuristic(H, edgeTo[neighbour]));
+                            pq.Add(edgeTo[neighbour]);
+                        }
+                        else if (gcost < edgeTo[neighbour].GetGCost())
+                        {
+                            pq.Remove(edgeTo[neighbour]);
+                            edgeTo[neighbour].SetParent(edgeTo[current]);
+                            edgeTo[neighbour].SetGCost(gcost);
+                            edgeTo[neighbour].SetFCost(gcost + heuristic(H, edgeTo[neighbour]));
+                            pq.Add(edgeTo[neighbour]);
+                        }
+                        pq.Sort();
+                    }
+                }
             }
         }
 
-        private void relax(DirectedEdge e, ref IndexedPriorityQueue<int> pq)
+        /*private void relax(DirectedEdge e, ref IndexedPriorityQueue<double> pq)
         {
             int v = e.From(), w = e.To();
 
@@ -70,18 +103,11 @@
                 edgeTo[w] = e;
                 pq.Set(w, (int)Math.Ceiling(distTo[w]));
             }
-        }
+        }*/
 
         // devuelve una lista con las casillas del tablero a seguir para llegar a "end"
         public List<int> GetPath()
         {
-            List<int> path = new List<int>();
-            path.Insert(path.Count, fin);
-            while (fin >= 0 && edgeTo[fin].From() != start)
-            {
-                fin = edgeTo[fin].From();
-                path.Insert(path.Count, fin);
-            }
             return path;
         }
 
@@ -90,43 +116,45 @@
         }
 
 
-        private void heuristic(TipoHeuristicas t, ref DirectedEdge e)
+        private double heuristic(TipoHeuristicas t, NodeCool e)
         {
             switch (t)
             {
                 case TipoHeuristicas.H1:
-                    heuristic1(ref e);
-                    break;
+                    return heuristic1(e);
+
                 case TipoHeuristicas.H2:
-                    heuristic2(ref e);
-                    break;
+                    return heuristic2(e);
+
                 case TipoHeuristicas.H3:
-                    heuristic3(ref e);
-                    break;
+                    return heuristic3(e);
+
+                default:
+                    return 0.0;
             }
         }
 
-        private void heuristic1(ref DirectedEdge e)
+        private double heuristic1(NodeCool e)
         {
+            return 0.0;
         }
 
-        private void heuristic2(ref DirectedEdge e)
+        private double heuristic2(NodeCool e)
         {
+            return 0.0;
         }
 
-        private void heuristic3(ref DirectedEdge e)
+        private double heuristic3(NodeCool e)
         {
-            int inix = (int)(e.From() / GameManager.instance.columns);
-            int iniy = (int)(e.From() - inix * GameManager.instance.columns);
-            int destx = (int)(fin / GameManager.instance.columns);
-            int desty = (int)(fin - destx * GameManager.instance.columns);
+            int inix = (int)(e.GetPos() / GameManager.instance.columns);
+            int iniy = (int)(e.GetPos() - inix * GameManager.instance.columns);
+            int destx = (int)(f_ / GameManager.instance.columns);
+            int desty = (int)(f_ - destx * GameManager.instance.columns);
 
             double catA = destx - inix;
             double catB = desty - iniy;
 
-            double h = Math.Sqrt(catA * catA + catB * catB);
-
-            e = new DirectedEdge(e.From(), e.To(), e.Weight(), h);
+             return Math.Sqrt(catA * catA + catB * catB);
         }
     }
 }

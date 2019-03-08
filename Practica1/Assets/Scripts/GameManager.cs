@@ -175,7 +175,7 @@
 
             flag.transform.position = tablero.getCasPos(x, y);
 
-            IndexedPriorityQueue<int> pq = new IndexedPriorityQueue<int>((int)(rows*columns));
+            List<NodeCool> pq = new List<NodeCool>();
             Astar astar = new Astar(); // la posicion de origen sera la posicion logica del tanque
             time = Time.realtimeSinceStartup;
             astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()), (int)(y + columns*x), H);
@@ -191,31 +191,31 @@
             setPathMarkers(path, ref markers);
 
             int r = 0, c = 0;
-            int i = path.Count - 1;
+            int i = 1;
 
-            i = path.Count - 1;
             tankMoving = true;
-
-            while (i >= 0 && path[i] >= 0)
+            if (path != null)
             {
-                r = (int)(path[i] / columns);
-                c = (int)(path[i] - r * columns);
-                setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
-                if (i > 0)
+                while (i < path.Count)
                 {
-                    setTankRotation(markers[markers.Count - i].transform.rotation.eulerAngles);
-                    Destroy(markers[markers.Count - i].gameObject);
+                    r = (int)(path[i] / columns);
+                    c = (int)(path[i] - r * columns);
+                    setTankPosition(tablero.getCasPos(r, c));      // posicion fisica
+                    if (i != path.Count - 1)
+                    {
+                        setTankRotation(markers[i - 1].transform.rotation.eulerAngles);
+                        Destroy(markers[i - 1].gameObject);
+                    }
+                    i++;
+                    steps++;
+                    cost += values[puzzle.GetType(r, c)];
+                    UpdateInfo();
+                    yield return new WaitForSecondsRealtime(0.3f); // delay 
                 }
-                i--;
-                steps++;
-                cost += values[puzzle.GetType(r, c)];
-                UpdateInfo();
-                yield return new WaitForSecondsRealtime(0.3f); // delay 
-            }
-            markers.Clear();
-
-            if (i < 0)
+                markers.Clear();
+                
                 puzzle.TankPosition = new Position((uint)r, (uint)c);  // posicion logica
+            }
             else StartCoroutine(changeCanMove());
 
             tankMoving = false;
@@ -225,34 +225,39 @@
         private void setPathMarkers(List<int> path, ref List<GameObject> markers)
         {
             int r = 0, c = 0;
-            int i = path.Count - 1;
+            int i = 0;
 
             Quaternion rot = Quaternion.Euler(0, 0, 0);
-            while (i >/*=*/ 0 && path[i] >/*=*/ 0)
+            if (path != null)
             {
-                r = (int)(path[i] / columns);
-                c = (int)(path[i] - r * columns);
-                markers.Add(Instantiate(markerPrefab));
-
-                Vector3 pos = new Vector3(tablero.getCasPos(r, c).x, 0.5f, tablero.getCasPos(r, c).z);
-                markers[path.Count - i - 1].transform.position = pos;
-
-                if (i < path.Count - 1)
+                while (i < path.Count)
                 {
-                    if (markers[path.Count - i - 1].transform.position.x > markers[path.Count - i - 2].transform.position.x)
-                        rot = Quaternion.Euler(-90, 90, 0);
-                    else if (markers[path.Count - i - 1].transform.position.x < markers[path.Count - i - 2].transform.position.x)
-                        rot = Quaternion.Euler(-90, 270, 0);
-                    else if (markers[path.Count - i - 1].transform.position.z > markers[path.Count - i - 2].transform.position.z)
-                        rot = Quaternion.Euler(-90, 0, 0);
-                    else
-                        rot = Quaternion.Euler(-90, 180, 0);
-                    markers[path.Count - i - 2].transform.rotation = rot;
+                    r = (int)(path[i] / columns);
+                    c = (int)(path[i] - r * columns);
+                    markers.Add(Instantiate(markerPrefab));
+
+                    Vector3 pos = new Vector3(tablero.getCasPos(r, c).x, 0.5f, tablero.getCasPos(r, c).z);
+                    markers[i].transform.position = pos;
+
+                    if (i > 1)
+                    {
+                        if (markers[i - 1].transform.position.x > markers[i].transform.position.x)
+                            rot = Quaternion.Euler(-90, 270, 0);
+                        else if (markers[i - 1].transform.position.x < markers[i].transform.position.x)
+                            rot = Quaternion.Euler(-90, 90, 0);
+                        else if (markers[i - 1].transform.position.z > markers[i].transform.position.z)
+                            rot = Quaternion.Euler(-90, 180, 0);
+                        else
+                            rot = Quaternion.Euler(-90, 0, 0);
+                        markers[i - 1].transform.rotation = rot;
+                    }
+                    i++;
                 }
-                i--;
+                Destroy(markers[i - 1].gameObject);
+                markers.Remove(markers[i - 1]);
+                Destroy(markers[0].gameObject);
+                markers.Remove(markers[0]);
             }
-            //Destroy(markers[markers.Count + i].gameObject);
-            //markers.Remove(markers[markers.Count + i]);
         }
 
         public IEnumerator changeCanMove()

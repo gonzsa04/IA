@@ -13,27 +13,19 @@ namespace UCM.IAV.IA.Util
         private readonly int _v;//The source vertex
         private readonly int _w;//The target vertex
         private readonly double _weight;//The weight to go from _v to _w
-        private readonly double _heuristic;//The heuristic(prediction) to go from _v to _end
 
         //Create a directed edge from v to w with weight 'weight'
-        public DirectedEdge(int v, int w, double weight, double heuristic = 0)
+        public DirectedEdge(int v, int w, double weight)
         {
             this._v = v;
             this._w = w;
             this._weight = weight;
-            this._heuristic = heuristic;
         }
 
         //Return the weight
         public double Weight()
         {
             return _weight;
-        }
-
-        //Return the weight
-        public double Heuristic()
-        {
-            return _heuristic;
         }
 
         //Return the source vertex
@@ -51,7 +43,7 @@ namespace UCM.IAV.IA.Util
         //Return a string representation of the edge
         public override string ToString()
         {
-            return string.Format("{0:d}->{1:d} , w {2:f} , h {3:f}", _v, _w, _weight, _heuristic);
+            return string.Format("{0:d}->{1:d} , w {2:f}", _v, _w, _weight);
         }
     }
 
