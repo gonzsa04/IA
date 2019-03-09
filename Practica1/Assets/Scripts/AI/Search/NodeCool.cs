@@ -4,16 +4,12 @@ namespace UCM.IAV.IA.Search {
     using System.Collections.Generic;
     using UCM.IAV.IA;
 
+    // clase nodo nuestra
     public class NodeCool : IComparable<NodeCool> { 
-        // n.PARENT: the NodeCool in the search tree that generated this NodeCool;
         private NodeCool parent_ = null;
         private bool closed_ = false;
         double gCost_ = 0.0, fCost_ = 0.0;
         int position_ = -1;
-        
-
-        /*// n.OPERATOR: the operator that was applied to the parent to generate the NodeCool;
-        private Operator op = null;*/
 
         public NodeCool() { }
 
@@ -90,11 +86,7 @@ namespace UCM.IAV.IA.Search {
             return "[parent=" + parent_ + ", gCost=" + gCost_ + ", fCost=" + fCost_ + "]";
         }
 
-        // A LO MEJOR TIENE SENTIDO HACER EL COMPARADOR DE NODOS COMO ALGO EXTERNO AL NODO... EL NODO SI ACASO QUE TENGAN EL COMPARARSE CON 'OTRO' NODO
-        // Para poder comparar nodos (no tiene mucho sentido.. lo normal será comparar ESTE nodo, con el otro que te pasan :-)
-        // PERO EL INTERFAZ EN C# ES ASÍ, SE COMPARAN DOS OBJETOS Y PUNTO
         public int CompareTo(NodeCool y) { 
-            // AQUÍ COMPARAMOS NODOS, BÁSICAMENTE EL COSTE
             if (GetFCost() > y.GetFCost())
                 return 1;
             if (GetFCost() < y.GetFCost())

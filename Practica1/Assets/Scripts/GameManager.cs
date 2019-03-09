@@ -210,7 +210,7 @@
                     steps++;
                     cost += values[puzzle.GetType(r, c)];
                     UpdateInfo();
-                    yield return new WaitForSecondsRealtime(0.3f); // delay 
+                    yield return new WaitForSecondsRealtime(0.2f); // delay 
                 }
                 markers.Clear();
                 
