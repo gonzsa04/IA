@@ -32,6 +32,8 @@
         public Text stepsNumber;
         public Text costNumber;
         public Text nodesNumber;
+        public Text depthNumber;
+        public Text memNumber;
         public InputField rowsInput;
         public InputField columnsInput;
         public Text cantMove;
@@ -48,6 +50,8 @@
         private uint steps = 0;
         private double cost = 0;
         private int expandedNodes = 0;
+        private int depth = 0;
+        private int memSize = 0;
 
         // flags
         private bool tankSelected = false;  // indica si el tanque esta seleccionado actualmente
@@ -186,6 +190,8 @@
             astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()), (int)(y + columns*x), H);
             time = Time.realtimeSinceStartup - time;
             expandedNodes = astar.GetExpandedNodes();
+            depth = astar.GetDepth();
+            memSize = astar.GetMemSize();
             UpdateInfo();
 
             // procesamos el camino dado por A*
@@ -286,6 +292,8 @@
             steps = 0;
             cost = 0;
             expandedNodes = 0;
+            memSize = 0;
+            depth = 0;
         }
 
         // Actualiza la información del panel, mostrándolo si corresponde
@@ -295,6 +303,8 @@
             stepsNumber.text = steps.ToString();
             costNumber.text = cost.ToString();
             nodesNumber.text = expandedNodes.ToString();
+            memNumber.text = memSize.ToString();
+            depthNumber.text = depth.ToString();
         }
 
         // restablece la config inicial del juego (tanto en la matriz fisica de casillas como en la logica)
