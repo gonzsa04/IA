@@ -6,10 +6,10 @@ namespace UCM.IAV.IA.Search {
 
     // clase nodo nuestra
     public class NodeCool : IComparable<NodeCool> { 
-        private NodeCool parent_ = null;
-        private bool closed_ = false;
-        double gCost_ = 0.0, fCost_ = 0.0;
-        int position_ = -1;
+        private NodeCool parent_ = null;   // padre
+        private bool closed_ = false;      // visitado
+        double gCost_ = 0.0, fCost_ = 0.0; // coste fisico / coste final
+        int position_ = -1;                // posicion dentro de la matriz logica
 
         public NodeCool() { }
 
@@ -68,6 +68,8 @@ namespace UCM.IAV.IA.Search {
             return parent_ == null;
         }
 
+        // devuelve la lista de posiciones de la matriz logica que habra que
+        // seguir para llegar desde este nodo hasta la raiz
         public List<int> GetPathFromRoot()
         {
             List<int> path = new List<int>();
@@ -77,7 +79,7 @@ namespace UCM.IAV.IA.Search {
                 path.Insert(0, current.GetPos());
                 current = current.GetParent();
             }
-            // ensure the root NodeCool is added
+            
             path.Insert(0, current.GetPos());
             return path;
         }

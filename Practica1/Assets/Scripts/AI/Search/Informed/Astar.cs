@@ -21,7 +21,7 @@
         private List<NodeCool> nodeGraph;   // los vertices del grafo dirigido valorado representados como nodos
         private List<int> path;             // almacena el camino a seguir desde el origen para llegar hasta el destino
         private int s_, f_;                 // origen desde el cual se consulta el camino a seguir y destino
-        private int edgesExpanded = 0;      // numero de caminos expandidos
+        private int expandedNodes = 0;      // numero de caminos expandidos
         private HeuristicFunctions heuristic = new HeuristicFunctions(); // elige las heuristicas
 
         public void Init(EdgeWeightedDigraph G, ref List<NodeCool> list, int s = 0, int f = 0, TipoHeuristicas H = TipoHeuristicas.SINH)
@@ -30,7 +30,8 @@
             s_ = s;
             f_ = f;
             nodeGraph = new List<NodeCool>();
-
+            // se actualizan las posiciones de cada nodo
+            // equivalente a las posiciones que tendrian en la matriz logica (0, 1, 2, ..., rows x columns)
             for (int i = 0; i < G.V(); i++)
             {
                 NodeCool aux = new NodeCool();
@@ -38,12 +39,12 @@
                 nodeGraph.Add(aux);
             }
 
-            // nodo origen
+            // establecemos el coste final del nodo origen (su coste fisico sera 0)
             nodeGraph[s_].SetFCost(nodeGraph[s_].GetGCost() + heuristic.chooseHeuristic(H, nodeGraph[s_], f_));
 
             list.Add(nodeGraph[s_]); // introducimos el primer nodo en la lista
 
-            // hasta que la lista no quede vacia de nodos vamos sacando el de menor coste
+            // hasta que la lista no quede vacia de nodos vamos sacando el de menor coste final
             // y actualizamos los caminos y distancias en caso de ser necesario
             while (list.Count != 0)
             {
@@ -57,16 +58,17 @@
                 }
 
                 list.Remove(nodeGraph[current]);
-                nodeGraph[current].SetClosed(true); // marcamos como leido
+                nodeGraph[current].SetClosed(true); // lo marcamos como visitado
 
-                // para cada adyacente de la posicion del nodo actual en el grafo
+                // para cada adyacente (vecino) de la posicion del nodo actual en el grafo
                 foreach (DirectedEdge e in G.Adj(nodeGraph[current].GetPos()))
                 {
-                    int neighbour = e.To();
+                    int neighbour = e.To(); // su vecino es el destino de la arista (el origen sera el nodo actual)
 
-                    // si no ha sido visitado ya
+                    // si el vecino no ha sido visitado ya
                     if (!nodeGraph[neighbour].GetClosed())
                     {
+                        // coste fisico
                         double gcost = nodeGraph[current].GetGCost() + e.Weight();
 
                         // si la lista no lo contiene ya, le actualizamos los costes, el padre y lo añadimos
@@ -76,7 +78,7 @@
                             nodeGraph[neighbour].SetGCost(gcost);
                             nodeGraph[neighbour].SetFCost(gcost + heuristic.chooseHeuristic(H, nodeGraph[neighbour], f_));
                             list.Add(nodeGraph[neighbour]);
-                            edgesExpanded++;
+                            expandedNodes++;
                         }
                         // si no, le modificamos los costes y el padre
                         else if (gcost < nodeGraph[neighbour].GetGCost())
@@ -94,16 +96,16 @@
             }
         }
 
-        // devuelve una lista con las posiciones del tablero a seguir para llegar a "end"
+        // devuelve una lista con las posiciones de la matriz logica a seguir para llegar a "end"
         public List<int> GetPath()
         {
             return path;
         }
 
         // devuelve el numero de caminos expandidos
-        public int GetEdgesEX()
+        public int GetExpandedNodes()
         {
-            return edgesExpanded;
+            return expandedNodes;
         }
     }
 }

@@ -1747,7 +1747,7 @@ GameObject:
   - component: {fileID: 881748463}
   - component: {fileID: 881748462}
   m_Layer: 5
-  m_Name: EdgesPanel
+  m_Name: ExpandedPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1940,7 +1940,7 @@ GameObject:
   - component: {fileID: 912574708}
   - component: {fileID: 912574707}
   m_Layer: 5
-  m_Name: EdgesText
+  m_Name: ExpandedNodesText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1962,7 +1962,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 340.25, y: 0}
-  m_SizeDelta: {x: 129, y: 30}
+  m_SizeDelta: {x: 130, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &912574707
 MonoBehaviour:
@@ -2010,7 +2010,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Edges expanded: '
+  m_Text: 'Nodes expanded: '
 --- !u!222 &912574709
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2318,7 +2318,7 @@ GameObject:
   - component: {fileID: 1035817029}
   - component: {fileID: 1035817028}
   m_Layer: 5
-  m_Name: EdgesNumber
+  m_Name: ExpandedNodes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2339,7 +2339,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 409.25, y: 0}
+  m_AnchoredPosition: {x: 409.75, y: 0}
   m_SizeDelta: {x: 9, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1035817028
@@ -2553,7 +2553,7 @@ MonoBehaviour:
   timeNumber: {fileID: 774132871}
   stepsNumber: {fileID: 1919569284}
   costNumber: {fileID: 581332948}
-  edgesNumber: {fileID: 1035817029}
+  nodesNumber: {fileID: 1035817029}
   rowsInput: {fileID: 530592120}
   columnsInput: {fileID: 1642671192}
   cantMove: {fileID: 1365905045}

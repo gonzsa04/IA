@@ -61,7 +61,7 @@
                     {
                         casilla = Instantiate(casillaPrefab, new Vector3(-((casillas.GetLength(1) / 2.0f) * POSITION_FACTOR_C - (POSITION_FACTOR_C / 2.0f)) + c * POSITION_FACTOR_C, 0,
                             (casillas.GetLength(0) / 2.0f) * POSITION_FACTOR_R - (POSITION_FACTOR_R / 2.0f) - r * POSITION_FACTOR_R),
-                            Quaternion.identity); // En Y, que es la separación del tablero, estoy poniendo 0 pero la referencia la debería dar el tablero
+                            Quaternion.identity);
 
                         casillas[r, c] = casilla;
                     }

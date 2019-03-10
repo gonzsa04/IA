@@ -51,8 +51,8 @@
                 if (GameManager.instance.isTankSelected())
                 {
                     if (this.type != TipoCasilla.Rocas)
-                        StartCoroutine(GameManager.instance.createPath((int)this.position.GetRow(), (int)this.position.GetColumn()));
-                    else StartCoroutine(GameManager.instance.changeCanMove());
+                        GameManager.instance.resolveGame((int)this.position.GetRow(), (int)this.position.GetColumn());
+                    else StartCoroutine(GameManager.instance.changeCanMove(2.0f));
                 }
                 // si no, esta casilla cambiara al tipo correspondiente
                 else

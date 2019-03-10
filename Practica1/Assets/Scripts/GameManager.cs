@@ -31,7 +31,7 @@
         public Text timeNumber;
         public Text stepsNumber;
         public Text costNumber;
-        public Text edgesNumber;
+        public Text nodesNumber;
         public InputField rowsInput;
         public InputField columnsInput;
         public Text cantMove;
@@ -41,20 +41,23 @@
         public uint columns = 10;
         public double[] values = { 1, 2, 4, 1000 }; // costes de cruzar cada tipo de casilla
 
-        private TankPuzzle puzzle;          // contiene la matriz logica que sera representada por el tablero de forma visual
+        private TankPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
         
+        // medidas de exito mostradas por pantalla
         private double time = 0.0d;
         private uint steps = 0;
         private double cost = 0;
-        private int edges = 0;
+        private int expandedNodes = 0;
 
+        // flags
         private bool tankSelected = false;  // indica si el tanque esta seleccionado actualmente
-        private bool tankMoving = false;
+        private bool tankMoving = false;    // indica si el tanque se esta moviendo actualmente
 
-        private EdgeWeightedDigraph graph;  // grafo dirigido y valorado hecho a partir de la matriz logica de puzzle
-        private TipoHeuristicas H = TipoHeuristicas.SINH;
+        // camino / heuristicas
+        private EdgeWeightedDigraph graph;                // grafo dirigido y valorado hecho a partir de la matriz logica de puzzle
+        private TipoHeuristicas H = TipoHeuristicas.SINH; // tipo de heuristica que se esta usando acyualmente (inicialmente sin heuristica)
 
-        private Vector3 IniPosFlag;
+        private Vector3 IniPosFlag; // posicion inicial de la bandera
 
         void Awake()
         {
@@ -83,7 +86,7 @@
             // Se crea el puzle internamente (matriz logica)
             puzzle = new TankPuzzle(rows, columns);
 
-            // Se inicializa todo el tablero de casillas (representacion visual de la matriz logica) a partir de puzzle
+            // Se inicializa todo el tablero de casillas (representacion visual a partir de la matriz logica)
             tablero.Initialize(puzzle);
 
             // Se crea el tanque
@@ -94,6 +97,7 @@
 
             flag.transform.position = IniPosFlag;
 
+            // GUI
             CleanInfo();   
             UpdateInfo();
         }
@@ -167,22 +171,28 @@
         }
 
         // teniendo el grafo construido, determina el camino a seguir con menor coste desde la posicion del tanque
-        // hasta la posicion p. Es llamado al seleccionar la casilla a la que queremos que vaya el tanque
-        public IEnumerator createPath(int x, int y)
+        // hasta la posicion destino. Es llamado al seleccionar la casilla a la que queremos que vaya el tanque
+        public void resolveGame(int x, int y)
         {
             CleanInfo();
             UpdateInfo();
 
-            flag.transform.position = tablero.getCasPos(x, y);
+            flag.transform.position = tablero.getCasPos(x, y); // ponemos la bandera en el destino
 
+            // creamos A*
             List<NodeCool> pq = new List<NodeCool>();
-            Astar astar = new Astar(); // la posicion de origen sera la posicion logica del tanque
-            time = Time.realtimeSinceStartup;
+            Astar astar = new Astar();        // la posicion de origen sera la posicion logica del tanque
+            time = Time.realtimeSinceStartup; // contador de tiempo
             astar.Init(graph, ref pq, (int)(puzzle.TankPosition.GetColumn() + columns * puzzle.TankPosition.GetRow()), (int)(y + columns*x), H);
             time = Time.realtimeSinceStartup - time;
-            edges = astar.GetEdgesEX();
+            expandedNodes = astar.GetExpandedNodes();
             UpdateInfo();
 
+            // procesamos el camino dado por A*
+            StartCoroutine(createPath(astar));
+        }
+        private IEnumerator createPath(Astar astar)
+        {
             // una vez tenemos el camino, lo recorremos posicion a posicion hasta llegar al destino
             // moviendo al tanque por cada una de las casillas intermedias
             List<int> path = astar.GetPath();
@@ -210,18 +220,19 @@
                     steps++;
                     cost += values[puzzle.GetType(r, c)];
                     UpdateInfo();
-                    yield return new WaitForSecondsRealtime(0.2f); // delay 
+                    yield return new WaitForSecondsRealtime(0.2f); // delay para verlo mejor
                 }
                 markers.Clear();
-                
+
                 puzzle.TankPosition = new Position((uint)r, (uint)c);  // posicion logica
             }
-            else StartCoroutine(changeCanMove());
+            else StartCoroutine(changeCanMove(2.0f)); // mostrara por pantalla que no podemos movernos a esa casilla
 
             tankMoving = false;
             changeTankSelected();
         }
 
+        // pinta los marcadores que indican el camino y la direccion que seguira el tanque para llegar a su destino
         private void setPathMarkers(List<int> path, ref List<GameObject> markers)
         {
             int r = 0, c = 0;
@@ -253,6 +264,7 @@
                     }
                     i++;
                 }
+                // eliminamos el primero (alli estara el tanque) y el ultimo (alli estara la bandera)
                 Destroy(markers[i - 1].gameObject);
                 markers.Remove(markers[i - 1]);
                 Destroy(markers[0].gameObject);
@@ -260,10 +272,11 @@
             }
         }
 
-        public IEnumerator changeCanMove()
+        // se escribira por pantalla que el tanque no puede moverse al destino solicitado durante un tiempo 
+        public IEnumerator changeCanMove(float time)
         {
             cantMove.enabled = true;
-            yield return new WaitForSecondsRealtime(2.0f);
+            yield return new WaitForSecondsRealtime(time);
             cantMove.enabled = false;
         }
 
@@ -272,7 +285,7 @@
             time = 0.0d;
             steps = 0;
             cost = 0;
-            edges = 0;
+            expandedNodes = 0;
         }
 
         // Actualiza la información del panel, mostrándolo si corresponde
@@ -281,11 +294,11 @@
             timeNumber.text = (time * 1000).ToString("0.0"); // Lo enseñamos en milisegundos y sólo con un decimal
             stepsNumber.text = steps.ToString();
             costNumber.text = cost.ToString();
-            edgesNumber.text = edges.ToString();
+            nodesNumber.text = expandedNodes.ToString();
         }
 
         // restablece la config inicial del juego (tanto en la matriz fisica de casillas como en la logica)
-        // si no se han cambiado sus dimensiones si se han cambiado, se crea un juego nuevo
+        // si no se han cambiado sus dimensiones. Si se han cambiado, se crea un juego nuevo
         public void ResetPuzzle()
         {
             if (!isTankMoving() && rowsInput.text != null && columnsInput.text != null)
@@ -304,6 +317,7 @@
                     tablero.ResetTablero(puzzle);
                     tank.Reset();
                 }
+                H = TipoHeuristicas.SINH;
             }
         }
 
@@ -320,6 +334,7 @@
                 UpdateInfo();
 
                 Initialize(newRows, newColumns);
+                H = TipoHeuristicas.SINH;
             }
         }
 
@@ -345,17 +360,17 @@
         {
             tank.setPosition(pos);
         }
+
+        // establece la rotacion fisica del tanque
         public void setTankRotation(Vector3 rot)
         {
             tank.setRotation(rot);
         }
 
+        // cambian el tipo de heuristica actual
         public void H1() { H = TipoHeuristicas.H1; }
-
         public void H2() { H = TipoHeuristicas.H2; }
-
         public void H3() { H = TipoHeuristicas.H3; }
-
         public void NOH() { H = TipoHeuristicas.SINH; }
 
         // Salir de la aplicación

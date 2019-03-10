@@ -4,9 +4,10 @@
     using UnityEngine;
     using Model;
 
+    // tanque que se movera por el tablero
     public class Tanque : MonoBehaviour
     {
-        private Vector3 initialPos;
+        private Vector3 initialPos; // posicion fisica
 
         public void Initialize()
         {
@@ -35,6 +36,7 @@
             this.transform.position = initialPos;
         }
 
+        // cambia de color en funcion de si esta seleccionado o no
         public void UpdateColor() {
             int numOfChildren = transform.childCount;
 
