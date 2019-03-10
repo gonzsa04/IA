@@ -125,7 +125,7 @@
                             {
                                 if (puzzle.GetType(ni, nj) != (int)TipoCasilla.Rocas)
                                 {
-                                    DirectedEdge a = new DirectedEdge((int)(j + columns * i), (int)(nj + columns * ni), values[puzzle.GetType(i, j)]);
+                                    DirectedEdge a = new DirectedEdge((int)(j + columns * i), (int)(nj + columns * ni), values[puzzle.GetType(ni, nj)]);
                                     graph.AddEdge(a);
                                 }
                             }
@@ -155,7 +155,7 @@
                     {
                         graph.modifyEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), values[puzzle.GetType(r, c)]));
                     }
-                    else
+                    else if (puzzle.GetType(ni, nj) != (int)TipoCasilla.Rocas)
                     {
                         graph.AddEdge(new DirectedEdge((int)(c + r * columns), (int)(nj + ni * columns), values[puzzle.GetType(ni, nj)]));
                         graph.AddEdge(new DirectedEdge((int)(nj + ni * columns), (int)(c + r * columns), values[puzzle.GetType(r, c)]));
