@@ -112,7 +112,7 @@
         // devuelve el numero de caminos expandidos
         public int GetMemSize()
         {
-            return depth;
+            return memSize;
         }
         // devuelve el numero de caminos expandidos
         public int GetDepth()
