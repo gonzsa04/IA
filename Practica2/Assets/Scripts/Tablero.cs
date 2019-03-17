@@ -65,6 +65,12 @@
                 }
             }
 
+            // para cada ficha del gm le establecemos la posicion fisica que corresponda
+            for (int i = 0; i < GameManager.instance.fichas.Count; i++)
+            {
+                Vector3 position = casillas[GameManager.instance.fichas[i].position.GetRow(), GameManager.instance.fichas[i].position.GetColumn()].transform.position;
+                GameManager.instance.fichas[i].setPosition(position);
+            }
         }
 
         private void DestroyCasillas() {

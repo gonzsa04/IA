@@ -56,6 +56,13 @@
                     possibleRooms.RemoveAt(aux);
                 }
             }
+
+            // para cada ficha del gm le elegimos una posicion logica aleatoria
+            for(int i = 0; i < GameManager.instance.fichas.Count; i++)
+            {
+                Position pos = new Position(rnd.Next(0, rows), rnd.Next(0, columns));
+                GameManager.instance.fichas[i].Initialize(GameManager.instance.names[i], pos);
+            }
         }
         
         // devuelve el tipo de estancia de la casilla en esa posicion

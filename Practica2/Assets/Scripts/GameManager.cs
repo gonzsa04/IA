@@ -22,6 +22,10 @@
         // GameObjects
         public static GameManager instance; // para poder ser llamado desde los demas .cs (static)
         public Tablero tablero;             // tablero de casillas (representacion visual)
+        public Ficha fichaPrefab;           // prefab de ficha generica
+
+        public List<Ficha> fichas;          // fichas de jugadores y sospechosos
+        public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
                      
         // Interfaz
         public Text timeNumber;
@@ -53,6 +57,9 @@
         }
 
         void Start() {
+            for (int i = 0; i < names.Length; i++)
+                fichas.Add(Instantiate(fichaPrefab));
+
             Initialize(rows, columns, roomLength);
         }
 

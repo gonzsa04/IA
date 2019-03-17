@@ -2426,6 +2426,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tablero: {fileID: 890708372}
+  fichaPrefab: {fileID: 114802123366353554, guid: a99eb345af28f7246912c79e143641f5,
+    type: 2}
+  fichas: []
+  names:
+  - h0
+  - b1
+  - b2
+  - A
+  - B
+  - C
+  - M
+  - P
+  - R
   timeNumber: {fileID: 774132871}
   stepsNumber: {fileID: 1919569284}
   costNumber: {fileID: 581332948}
