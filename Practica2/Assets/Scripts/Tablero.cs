@@ -70,6 +70,7 @@
             {
                 Vector3 position = casillas[GameManager.instance.fichas[i].position.GetRow(), GameManager.instance.fichas[i].position.GetColumn()].transform.position;
                 GameManager.instance.fichas[i].setPosition(position);
+                casillas[GameManager.instance.fichas[i].position.GetRow(), GameManager.instance.fichas[i].position.GetColumn()].tieneFicha = true;
             }
         }
 

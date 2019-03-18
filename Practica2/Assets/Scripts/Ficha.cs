@@ -7,6 +7,7 @@
     // clase ficha (sospechosos y jugadores)
     public class Ficha : MonoBehaviour {
         private string name_;     // nombre que escribira el texto
+
         public Position position; // posicion logica
 
         public void Initialize(string name, Position position)

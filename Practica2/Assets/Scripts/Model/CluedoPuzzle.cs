@@ -3,7 +3,23 @@
     using System;
     using UCM.IAV.Util;
     using System.Collections.Generic;
-    
+
+    public class pair<T, U>
+    {
+        public pair()
+        {
+        }
+
+        public pair(T first, U second)
+        {
+            this.First = first;
+            this.Second = second;
+        }
+
+        public T First { get; set; }
+        public U Second { get; set; }
+    };
+
     // contendra una matriz logica del juego en la que cada elemento
     // representara una casilla perteneciente a un tipo de estancia
     public class CluedoPuzzle : IDeepCloneable<CluedoPuzzle>
@@ -14,7 +30,7 @@
         public int columns;                       // Dimensión de las columnas
         public int roomLength;                    // dimension de cada habitacion
 
-        private int[,] matrix;                    // matriz logica de casillas de cada estancia
+        private pair<int, bool>[,] matrix;                    // matriz logica de casillas de cada estancia
         private List<int> possibleRooms = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
         
         private static readonly int DEFAULT_ROWS = 9;
@@ -39,7 +55,7 @@
             this.columns = columns;
             this.roomLength = roomLength;
 
-            matrix = new int[rows, columns];
+            matrix = new pair<int,bool>[rows, columns];
 
             for (int r = 0; r < rows; r += roomLength)
             {
@@ -50,7 +66,7 @@
                     {
                         for (int j = c; j < c + roomLength; j++)
                         {
-                            matrix[i, j] = possibleRooms[aux];
+                            matrix[i, j] = new pair<int, bool>(possibleRooms[aux], false);
                         }
                     }
                     possibleRooms.RemoveAt(aux);
@@ -60,7 +76,13 @@
             // para cada ficha del gm le elegimos una posicion logica aleatoria
             for(int i = 0; i < GameManager.instance.fichas.Count; i++)
             {
-                Position pos = new Position(rnd.Next(0, rows), rnd.Next(0, columns));
+                Position pos;
+                do
+                {
+                    pos = new Position(rnd.Next(0, rows), rnd.Next(0, columns));
+                }
+                while (matrix[pos.GetRow(), pos.GetColumn()].Second);
+                matrix[pos.GetRow(), pos.GetColumn()].Second = true;
                 GameManager.instance.fichas[i].Initialize(GameManager.instance.names[i], pos);
             }
         }
@@ -70,7 +92,7 @@
             if (r >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", r), "row");
             if (c >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", c), "column");
             
-            return matrix[r, c];
+            return matrix[r, c].First;
         }
 
         // establece el tipo de estancia de la casilla en esa posicion
@@ -79,7 +101,7 @@
             if (r >= rows) throw new ArgumentException(string.Format("{0} is not a valid row for this matrix", r), "row");
             if (c >= columns) throw new ArgumentException(string.Format("{0} is not a valid column for this matrix", c), "column");
 
-            matrix[r, c] = type;
+            matrix[r, c].First = type;
         }
 
         // copia un juego recibido
@@ -88,7 +110,7 @@
             this.rows = puzzle.rows;
             this.columns = puzzle.columns;
 
-            matrix = new int[rows, columns];
+            matrix = new pair<int, bool>[rows, columns];
             for (var r = 0u; r < rows; r++)
                 for (var c = 0u; c < columns; c++)
                     matrix[r, c] = puzzle.matrix[r, c];

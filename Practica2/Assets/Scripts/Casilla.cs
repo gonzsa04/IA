@@ -20,17 +20,19 @@
         // tipo y tipo inicial
         private TipoEstancia type;
         private TipoEstancia initialType;
+        public bool tieneFicha = false;
 
         // actualiza el color dependiendo del tipo de casilla que sea actualmente
         private void UpdateColor() { this.GetComponent<Renderer>().material.color = colors[(uint)this.type]; }
         
         public Position position; // posicion logica dentro de la matriz logica de puzzle
         
-        public void Initialize(Tablero tablero, int type)
+        public void Initialize(Tablero tablero, int type, bool ficha = false)
         {
             this.tablero = tablero;
             this.type = (TipoEstancia)type;
             this.initialType = this.type;
+            this.tieneFicha = ficha;
 
             UpdateColor();
         }
