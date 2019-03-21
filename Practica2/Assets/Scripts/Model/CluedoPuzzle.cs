@@ -74,7 +74,7 @@
             }
 
             // para cada ficha del gm le elegimos una posicion logica aleatoria
-            for(int i = 0; i < GameManager.instance.fichas.Count; i++)
+            for(int i = 0; i < GameManager.instance.characters.Count; i++)
             {
                 Position pos;
                 do
@@ -83,7 +83,7 @@
                 }
                 while (matrix[pos.GetRow(), pos.GetColumn()].Second);
                 matrix[pos.GetRow(), pos.GetColumn()].Second = true;
-                GameManager.instance.fichas[i].Initialize(GameManager.instance.names[i], pos);
+                GameManager.instance.characters[i].ficha_.Initialize(GameManager.instance.names[i], pos);
             }
         }
         

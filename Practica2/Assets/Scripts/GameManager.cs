@@ -14,19 +14,21 @@
     using UCM.IAV.IA.Util;
 
     public enum TipoEstancia { Biblioteca, Cocina, Comedor, Estudio, Pasillo, Recibidor, Billar, Baile, Terraza };
+    public enum Turn { H0, B1, B2 };
     public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
     // gestiona el juego del tanque
     public class GameManager : MonoBehaviour {
-        
+
         // GameObjects
         public static GameManager instance; // para poder ser llamado desde los demas .cs (static)
         public Tablero tablero;             // tablero de casillas (representacion visual)
-        public Ficha fichaPrefab;           // prefab de ficha generica
+        public Ficha fichaPrefab;           // prefab de player generico
 
-        public List<Ficha> fichas;          // fichas de jugadores y sospechosos
+        public List<Character> characters;          // jugadores y sospechosos
         public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
-                     
+        public int numPlayers = 3;
+
         // Interfaz
         public Text timeNumber;
         public Text stepsNumber;
@@ -42,7 +44,8 @@
         public int roomLength = 3;
 
         private CluedoPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
-        
+        private Turn turn = Turn.H0;
+
         // medidas de exito mostradas por pantalla
         private double time = 0.0d;
         private uint steps = 0;
@@ -57,9 +60,11 @@
         }
 
         void Start() {
-            for (int i = 0; i < names.Length; i++)
-                fichas.Add(Instantiate(fichaPrefab));
-
+            characters = new List<Character>();
+            for (int i = 0; i < names.Length; i++) { 
+                if (i < numPlayers) characters.Add(new Player(fichaPrefab));
+                else characters.Add(new Suspect(fichaPrefab));
+            }
             Initialize(rows, columns, roomLength);
         }
 
@@ -80,7 +85,7 @@
             tablero.Initialize(puzzle);
 
             // GUI
-            CleanInfo();   
+            CleanInfo();
             UpdateInfo();
         }
 
@@ -91,11 +96,85 @@
         }
 
         // se escribira por pantalla que el tanque no puede moverse al destino solicitado durante un tiempo 
-        public IEnumerator changeCanMove(float time)
+        private IEnumerator changeCanMove(float time)
         {
             cantMove.enabled = true;
             yield return new WaitForSecondsRealtime(time);
             cantMove.enabled = false;
+        }
+
+        public void startCanMoveRoutine(float time)
+        {
+            StartCoroutine(changeCanMove(time));
+        }
+
+        public void changeTieneSuspect(int r, int c)
+        {
+            tablero.changeTieneSuspect(r, c);
+        }
+        public void changeTienePlayer(int r, int c)
+        {
+            tablero.changeTienePlayer(r, c);
+        }
+
+        public Position getEstancia(int r, int c)
+        {
+            return new Position((r/ roomLength) *roomLength, (c / roomLength) *roomLength);
+        }
+
+        public void processClick(Position posL, Vector3 posP)
+        {
+            Player p = (Player)characters[(int)turn];
+            p.move(posL, posP);
+
+            int suspectNum = 0;
+
+            for (int i = 0; i < roomLength; i++)
+            {
+                for (int j = 0; j < roomLength; j++)
+                {
+                    Position pos = getEstancia(posL.GetRow(), posL.GetColumn());
+                    if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn())) suspectNum++;
+                }
+            }
+            if (suspectNum == 1)
+            {
+                //DESPLEGABLE OBJECTOS
+            }
+            else if (suspectNum > 1)
+            {
+                //DESPLEGABLE SOSPECHOSOS
+            }
+        }
+
+        public void moveSuspect(Suspect sus)
+        {
+            int r, c;
+            Position suspectE, playerE;
+            suspectE = getEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
+            playerE = getEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
+            if (suspectE.GetRow() == playerE.GetRow() && suspectE.GetColumn() == playerE.GetColumn()) {
+                //DESPLEGABLE
+            }
+            else
+            {
+                r = playerE.GetRow();
+                c = playerE.GetColumn();
+                while (r < playerE.GetRow() + roomLength &&  (tablero.tienePlayer(r,c) || tablero.tieneSuspect(r, c)))
+                {
+                    while (c < playerE.GetColumn() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
+                    {
+                        c++;
+                    }
+                    if (c >= playerE.GetColumn() + roomLength)
+                    {
+                        r++;
+                        c = playerE.GetColumn();
+                    }
+                }
+                sus.move(new Position(r, c), tablero.getCasPos(r, c));
+                tablero.changeTieneSuspect(r, c);
+            }
         }
 
         // Pone los contadores de información a cero
@@ -117,16 +196,6 @@
             nodesNumber.text = expandedNodes.ToString();
             memNumber.text = memSize.ToString();
             depthNumber.text = depth.ToString();
-        }
-
-        // restablece la config inicial del juego (tanto en la matriz fisica de casillas como en la logica)
-        public void ResetPuzzle()
-        {
-            CleanInfo();
-            UpdateInfo();
-
-            tablero.ResetTablero(puzzle);
-            // reset de objetos y jugadores
         }
 
         // se crea un juego nuevo con casillas aleatorias

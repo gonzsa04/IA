@@ -66,11 +66,12 @@
             }
 
             // para cada ficha del gm le establecemos la posicion fisica que corresponda
-            for (int i = 0; i < GameManager.instance.fichas.Count; i++)
+            for (int i = 0; i < GameManager.instance.characters.Count; i++)
             {
-                Vector3 position = casillas[GameManager.instance.fichas[i].position.GetRow(), GameManager.instance.fichas[i].position.GetColumn()].transform.position;
-                GameManager.instance.fichas[i].setPosition(position);
-                casillas[GameManager.instance.fichas[i].position.GetRow(), GameManager.instance.fichas[i].position.GetColumn()].tieneFicha = true;
+                Vector3 position = casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].transform.position;
+                GameManager.instance.characters[i].ficha_.setPosition(position);
+                if (i < GameManager.instance.numPlayers) casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].tienePlayer = true;
+                else casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].tieneSuspect = true;
             }
         }
 
@@ -88,10 +89,23 @@
             }
         }
 
-        // restablece la posicion de los objetos y los jugadores
-        public void ResetTablero(CluedoPuzzle puzzle)
+        public void changeTieneSuspect(int r, int c)
         {
-            // reset de objetos y jugadores
+            casillas[r, c].tieneSuspect = !casillas[r, c].tieneSuspect;
+        }
+        public void changeTienePlayer(int r, int c)
+        {
+            casillas[r, c].tienePlayer = !casillas[r, c].tienePlayer;
+        }
+
+        public bool tieneSuspect(int r, int c)
+        {
+            return casillas[r, c].tieneSuspect;
+        }
+
+        public bool tienePlayer(int r, int c)
+        {
+            return casillas[r, c].tienePlayer;
         }
 
         // devuelve la posicion fisica de la casilla situada en (r, c)

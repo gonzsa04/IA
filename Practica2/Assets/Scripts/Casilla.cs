@@ -19,20 +19,20 @@
 
         // tipo y tipo inicial
         private TipoEstancia type;
-        private TipoEstancia initialType;
-        public bool tieneFicha = false;
+        public bool tienePlayer = false;
+        public bool tieneSuspect = false;
 
         // actualiza el color dependiendo del tipo de casilla que sea actualmente
         private void UpdateColor() { this.GetComponent<Renderer>().material.color = colors[(uint)this.type]; }
         
         public Position position; // posicion logica dentro de la matriz logica de puzzle
-        
-        public void Initialize(Tablero tablero, int type, bool ficha = false)
+
+        public void Initialize(Tablero tablero, int type, bool tienePlayer = false, bool tieneSuspect = false)
         {
             this.tablero = tablero;
             this.type = (TipoEstancia)type;
-            this.initialType = this.type;
-            this.tieneFicha = ficha;
+            this.tieneSuspect = tieneSuspect;
+            this.tienePlayer = tienePlayer;
 
             UpdateColor();
         }
@@ -41,6 +41,12 @@
         public bool OnMouseUpAsButton()
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
+
+            if (!tienePlayer && !tieneSuspect) {
+                GameManager.instance.processClick(this.position, this.transform.position);
+                tienePlayer = true;
+            }
+            else GameManager.instance.startCanMoveRoutine(2.0f);
 
             return false;
         }
