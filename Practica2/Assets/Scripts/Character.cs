@@ -8,13 +8,15 @@
     public abstract class Character
     {
         public Ficha ficha_;
+        public int index;
 
         public abstract void onClicked();
 
-        public Character (Ficha fichaPrefab)
+        public Character (Ficha fichaPrefab, int i)
         {
             ficha_ = Ficha.Instantiate(fichaPrefab);
             ficha_.setCharacter(this);
+            index = i;
         }
 
         protected void move(Position posL, Vector3 posP)

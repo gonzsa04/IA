@@ -84,6 +84,11 @@
                 while (matrix[pos.GetRow(), pos.GetColumn()].Second);
                 matrix[pos.GetRow(), pos.GetColumn()].Second = true;
                 GameManager.instance.characters[i].ficha_.Initialize(GameManager.instance.names[i], pos);
+                if (i < GameManager.instance.numPlayers)
+                {
+                    Player aux = (Player)GameManager.instance.characters[i];
+                    aux.libreta_.estanciaActual = (TipoEstancia)GetType(pos.GetRow(), pos.GetColumn());
+                }
             }
         }
         

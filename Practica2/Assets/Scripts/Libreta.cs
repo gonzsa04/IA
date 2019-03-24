@@ -6,10 +6,13 @@
 
     public class Libreta : MonoBehaviour {
 
-        private enum TipoLibreta { nada, noTiene, tiene };
-        private TipoLibreta[,] libreta;
         private static readonly int DEFAULT_ROWS = 21;
         private static readonly int DEFAULT_COLUMNS = 3;
+
+        public enum TipoLibreta { N, X, O };
+        public TipoLibreta[,] libreta;
+        public TipoEstancia estanciaActual;
+        public int sospechosoActual;
 
         public void Initialize()
         {
@@ -18,7 +21,7 @@
             {
                 for(int j = 0; j < DEFAULT_COLUMNS; j++)
                 {
-                    libreta[i, j] = TipoLibreta.nada;
+                    libreta[i, j] = TipoLibreta.N;
                 }
             }
         }

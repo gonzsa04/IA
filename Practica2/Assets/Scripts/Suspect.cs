@@ -7,7 +7,7 @@
 
     public class Suspect : Character
     {
-        public Suspect(Ficha fichaPrefab) : base(fichaPrefab)
+        public Suspect(Ficha fichaPrefab, int i) : base(fichaPrefab, i)
         {
         }
 

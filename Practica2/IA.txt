@@ -1,4 +1,3 @@
--Desplegables (armas y sospechosos) ademas de colocar su aparicion en codigo
--Prefab de libreta e instanciarla en Player. Asignar cada boton del prefab a una variable de la libreta.cs (en su matriz)
--Sistema de acusaciones (rellenar huecos del codigo) y funciones que se llamen cuando clickes en los botones de los desplegables. Hacer un log 
-cuando hayas elegido arma y sospechoso. (de estas dos cosas ademas de la estancia actual)
+-Crear las tres libretas de cada jugador y pasarlas a cada player y el boton que las enablea
+-Colocar la camara mas lejos 
+-Resto de funcionalidades logicas del pdf

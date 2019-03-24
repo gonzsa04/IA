@@ -7,17 +7,18 @@
 
     public class Player : Character
     {
-        private Libreta libreta_;
+        public Libreta libreta_;
 
-        public Player(Ficha fichaPrefab) : base(fichaPrefab)
+        public Player(Ficha fichaPrefab, int i) : base(fichaPrefab, i)
         {
-            /*libreta_ = new Libreta();
-            libreta_.Initialize();*/
+            libreta_ = new Libreta();
+            libreta_.Initialize();
         }
 
         public new void move(Position posL, Vector3 posP)
         {
             GameManager.instance.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
+            libreta_.estanciaActual = GameManager.instance.getTipoEstancia(posL.GetRow(), posL.GetColumn());
             base.move(posL, posP);
         }
 

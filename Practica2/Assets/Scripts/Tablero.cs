@@ -108,6 +108,11 @@
             return casillas[r, c].tienePlayer;
         }
 
+        public TipoEstancia getCasEstancia(int r, int c)
+        {
+            return casillas[r, c].getTypeEstancia();
+        }
+
         // devuelve la posicion fisica de la casilla situada en (r, c)
         public Vector3 getCasPos(int r, int c)
         {

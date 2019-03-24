@@ -14,6 +14,7 @@
     using UCM.IAV.IA.Util;
 
     public enum TipoEstancia { Biblioteca, Cocina, Comedor, Estudio, Pasillo, Recibidor, Billar, Baile, Terraza };
+    public enum TipoArmas { Candelabro, Cuerda, Herramiernta, Pistola, Puñal, Tuberia };
     public enum Turn { H0, B1, B2 };
     public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
@@ -25,7 +26,7 @@
         public Tablero tablero;             // tablero de casillas (representacion visual)
         public Ficha fichaPrefab;           // prefab de player generico
 
-        public List<Character> characters;          // jugadores y sospechosos
+        public List<Character> characters;  // jugadores y sospechosos
         public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
         public int numPlayers = 3;
 
@@ -37,14 +38,21 @@
         public Text depthNumber;
         public Text memNumber;
         public Text cantMove;
+        public Canvas canvas;
+        public GameObject armasPanel;
 
         // Dimensiones iniciales del juego
         public int rows = 9;
         public int columns = 9;
         public int roomLength = 3;
 
+        private System.Random rnd = new System.Random();
+
         private CluedoPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
         private Turn turn = Turn.H0;
+        private int armaCrimen;
+        private int estanciaCrimen;
+        private int sospechosoCrimen;
 
         // medidas de exito mostradas por pantalla
         private double time = 0.0d;
@@ -62,10 +70,14 @@
         void Start() {
             characters = new List<Character>();
             for (int i = 0; i < names.Length; i++) { 
-                if (i < numPlayers) characters.Add(new Player(fichaPrefab));
-                else characters.Add(new Suspect(fichaPrefab));
+                if (i < numPlayers) characters.Add(new Player(fichaPrefab, i));
+                else characters.Add(new Suspect(fichaPrefab, i));
             }
             Initialize(rows, columns, roomLength);
+            armasPanel.SetActive(false);
+            armaCrimen = rnd.Next(0, 6);
+            estanciaCrimen = rnd.Next(0, 9);
+            sospechosoCrimen = rnd.Next(3, 9);
         }
 
         // Inicializa o reinicia el gestor
@@ -117,9 +129,14 @@
             tablero.changeTienePlayer(r, c);
         }
 
-        public Position getEstancia(int r, int c)
+        public Position getPosEstancia(int r, int c)
         {
             return new Position((r/ roomLength) *roomLength, (c / roomLength) *roomLength);
+        }
+
+        public TipoEstancia getTipoEstancia(int r, int c)
+        {
+            return tablero.getCasEstancia(r, c);
         }
 
         public void processClick(Position posL, Vector3 posP)
@@ -133,17 +150,9 @@
             {
                 for (int j = 0; j < roomLength; j++)
                 {
-                    Position pos = getEstancia(posL.GetRow(), posL.GetColumn());
+                    Position pos = getPosEstancia(posL.GetRow(), posL.GetColumn());
                     if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn())) suspectNum++;
                 }
-            }
-            if (suspectNum == 1)
-            {
-                //DESPLEGABLE OBJECTOS
-            }
-            else if (suspectNum > 1)
-            {
-                //DESPLEGABLE SOSPECHOSOS
             }
         }
 
@@ -151,10 +160,12 @@
         {
             int r, c;
             Position suspectE, playerE;
-            suspectE = getEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
-            playerE = getEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
+            suspectE = getPosEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
+            playerE = getPosEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
             if (suspectE.GetRow() == playerE.GetRow() && suspectE.GetColumn() == playerE.GetColumn()) {
-                //DESPLEGABLE
+                armasPanel.SetActive(true);
+                Player aux = (Player)characters[(int)turn];
+                aux.libreta_.sospechosoActual = sus.index;
             }
             else
             {
@@ -175,6 +186,34 @@
                 sus.move(new Position(r, c), tablero.getCasPos(r, c));
                 tablero.changeTieneSuspect(r, c);
             }
+        }
+
+        public void Acusar(int i)
+        {
+            //FALTA ACCEDER A LA LIBRETA DEL JUGADOR ACTUAL(SOSPECHOSO, ARMA(i), ESTANCIA)
+            Player aux = (Player)characters[(int)turn];
+            Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
+            aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());
+            armasPanel.SetActive(false);
+        }
+
+        public void changeLibreta(GameObject go)
+        {
+            Pair parComp = go.GetComponent<Pair>();
+            int r = parComp.R, c = parComp.C;
+            Player aux = (Player)characters[(int)turn];
+            if (aux.libreta_.libreta[r, c] == Libreta.TipoLibreta.O)
+            {
+                aux.libreta_.libreta[r, c] = Libreta.TipoLibreta.N;
+            }
+            else aux.libreta_.libreta[r, c]++;
+
+            go.GetComponentInChildren<Text>().text = aux.libreta_.libreta[r, c].ToString();
+        }
+
+        public void enableLibreta()
+        {
+            Player aux = (Player)characters[(int)turn];
         }
 
         // Pone los contadores de información a cero

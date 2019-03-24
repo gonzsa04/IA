@@ -51,7 +51,7 @@
             return false;
         }
         
-        public TipoEstancia getType() { return this.type; }
+        public TipoEstancia getTypeEstancia() { return this.type; }
 
         // Cadena de texto representativa
         public override string ToString()
