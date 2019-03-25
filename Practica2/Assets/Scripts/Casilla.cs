@@ -43,7 +43,7 @@
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
             if (!tienePlayer && !tieneSuspect) {
-                GameManager.instance.processClick(this.position, this.transform.position);
+                GameManager.instance.movePlayer(this.position, this.transform.position);
                 tienePlayer = true;
             }
             else GameManager.instance.startCanMoveRoutine(2.0f);

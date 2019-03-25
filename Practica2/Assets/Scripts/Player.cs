@@ -8,11 +8,13 @@
     public class Player : Character
     {
         public Libreta libreta_;
+        public List<string> cards_;
 
-        public Player(Ficha fichaPrefab, int i) : base(fichaPrefab, i)
+        public Player(Ficha fichaPrefab, Libreta lib, int i) : base(fichaPrefab, i)
         {
-            libreta_ = new Libreta();
+            libreta_ = lib;
             libreta_.Initialize();
+            cards_ = new List<string>();
         }
 
         public new void move(Position posL, Vector3 posP)

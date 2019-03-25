@@ -16,6 +16,7 @@
 
         public void Initialize()
         {
+            this.gameObject.SetActive(false);
             libreta = new TipoLibreta[DEFAULT_ROWS, DEFAULT_COLUMNS];
             for(int i = 0; i < DEFAULT_ROWS; i++)
             {

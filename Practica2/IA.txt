@@ -1,3 +1,7 @@
--Crear las tres libretas de cada jugador y pasarlas a cada player y el boton que las enablea
--Colocar la camara mas lejos 
--Resto de funcionalidades logicas del pdf
+-Poder eliminar turnos (debera dejar de ser un enum)
+-Comprobar cartas de los demas jugadores
+-Ganar/perder (sistema de acusaciones)
+-Pasar turno con un boton
+-Poder ver las libretas de los bots en tu turno (tres botones distintos, al activar una se desactivan las demas)
+-Hacer en initialize que el turno empiece en H0. Indicar de quien es el turno actualmente
+-El turno se acaba cuando te mueves y no hay nadie en tu estancia o cuando hay alguien en ella y le acusas/preguntas
