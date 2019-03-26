@@ -16,7 +16,6 @@
     // enums
     public enum TipoEstancia { Biblioteca, Cocina, Comedor, Estudio, Pasillo, Recibidor, Billar, Baile, Terraza };
     public enum TipoArmas { Candelabro, Cuerda, Herramiernta, Pistola, Puñal, Tuberia };
-    public enum Turn { H0, B1, B2 };
     public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
     // gestiona el juego del tanque
@@ -47,6 +46,7 @@
         public Text nodesNumber;
         public Text depthNumber;
         public Text memNumber;
+        public Text turnoNumber;
         public Text cantMove;
         public Canvas canvas;
         public GameObject armasPanel;
@@ -58,9 +58,10 @@
 
         private System.Random rnd = new System.Random();
         private Libreta[] libretas;
+        private List<string> turnos;
 
         private CluedoPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
-        private Turn turn = Turn.H0;    // turno del jugador actual
+        private int turn;
 
         // crimen
         private string armaCrimen;
@@ -83,6 +84,7 @@
         void Start()
         {
             characters = new List<Character>();
+            turnos = new List<string>();
             libretas = new Libreta[numPlayers];
             libretas[0] = libPlayer1;
             libretas[1] = libPlayer2;
@@ -97,8 +99,10 @@
             if (timeNumber == null) throw new InvalidOperationException("The timeNumber reference is null");
             if (stepsNumber == null) throw new InvalidOperationException("The stepsNumber reference is null");
 
+            turnos.Clear();
+
             // init de variables
-            for(int i = 0; i < characters.Count; i++)
+            for (int i = 0; i < characters.Count; i++)
             {
                 Destroy(characters[i].ficha_.gameObject);
             }
@@ -106,7 +110,11 @@
 
             for (int i = 0; i < names.Length; i++)
             {
-                if (i < numPlayers) characters.Add(new Player(fichaPrefab, libretas[i], i));
+                if (i < numPlayers)
+                {
+                    characters.Add(new Player(fichaPrefab, libretas[i], i));
+                    turnos.Add(names[i]);
+                }
                 else characters.Add(new Suspect(fichaPrefab, i));
             }
 
@@ -120,10 +128,6 @@
             // Se inicializa todo el tablero de casillas (representacion visual a partir de la matriz logica)
             tablero.Initialize(puzzle);
 
-            // GUI
-            CleanInfo();
-            UpdateInfo();
-
             armasPanel.SetActive(false);
 
             initCards(); // inicializa los distintos tipos de cartas
@@ -135,6 +139,12 @@
 
             // repartimos las cartas sobrantes entre los jugadores
             dealCards();
+
+            turn = 0;
+
+            // GUI
+            CleanInfo();
+            UpdateInfo();
         }
 
         //-----------------------REPARTICION DE CARTAS----------------------------
@@ -210,11 +220,12 @@
         //------------------------------------------------------------------------
 
         // actualiza el turno del jugador actual
-        private void nextTurn()
+        public void nextTurn()
         {
-            libretas[(int)turn].gameObject.SetActive(false);
-            if ((int)turn == numPlayers - 1) turn = Turn.H0;
+            disableLibretas();
+            if (turn == turnos.Count-1) turn = 0;
             else turn++;
+            UpdateInfo();
         }
 
         // actualiza la matriz logica
@@ -260,7 +271,23 @@
         {
             Player p = (Player)characters[(int)turn];
             p.move(posL, posP);
-            nextTurn();
+
+            int characNum = 0, i = 0, j;
+
+            while (i < roomLength && characNum <= 0)
+            {
+                j = 0;
+                while (j < roomLength && characNum <= 0)
+                {
+                    Position pos = getPosEstancia(posL.GetRow(), posL.GetColumn());
+                    if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn()) || 
+                        tablero.tienePlayer(i + pos.GetRow(), j + pos.GetColumn()))
+                        characNum++;
+                    j++;
+                }
+                i++;
+            }
+            if(characNum == 0) nextTurn();                 //Si no hay sospechosos pasamos turno
         }
 
         public void moveSuspect(Suspect sus)
@@ -292,7 +319,6 @@
                 }
                 sus.move(new Position(r, c), tablero.getCasPos(r, c));
                 tablero.changeTieneSuspect(r, c);
-                nextTurn();
             }
         }
 
@@ -303,7 +329,10 @@
             Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
             aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());
             armasPanel.SetActive(false);
-            nextTurn();
+            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && armas[i] == armaCrimen) {
+                turnos.Remove(turnos[turn]);
+            }
+            else nextTurn();
         }
 
         public void changeLibreta(GameObject go)
@@ -320,10 +349,22 @@
             go.GetComponentInChildren<Text>().text = aux.libreta_.libreta[r, c].ToString();
         }
 
-        public void enableLibreta()
+        public void enableLibretas(int index)
         {
-            Player aux = (Player)characters[(int)turn];
-            aux.libreta_.gameObject.SetActive(!aux.libreta_.gameObject.activeSelf);
+             for(int i = 0; i < numPlayers; i++)
+             {
+                if (i == index)
+                    libretas[i].gameObject.SetActive(!libretas[i].gameObject.activeSelf);
+                else
+                    libretas[i].gameObject.SetActive(false);
+            }
+        }
+        public void disableLibretas()
+        {
+            for (int i = 0; i < numPlayers; i++)
+            {
+                    libretas[i].gameObject.SetActive(false);
+            }
         }
 
         // Pone los contadores de información a cero
@@ -345,6 +386,7 @@
             nodesNumber.text = expandedNodes.ToString();
             memNumber.text = memSize.ToString();
             depthNumber.text = depth.ToString();
+            turnoNumber.text = turnos[turn];
         }
 
         // se crea un juego nuevo con casillas aleatorias

@@ -1,7 +1,5 @@
--Poder eliminar turnos (debera dejar de ser un enum)
 -Comprobar cartas de los demas jugadores
--Ganar/perder (sistema de acusaciones)
--Pasar turno con un boton
--Poder ver las libretas de los bots en tu turno (tres botones distintos, al activar una se desactivan las demas)
--Hacer en initialize que el turno empiece en H0. Indicar de quien es el turno actualmente
--El turno se acaba cuando te mueves y no hay nadie en tu estancia o cuando hay alguien en ella y le acusas/preguntas
+
+-Corregir eliminar turnos
+-Ganar (sistema de acusaciones)
+-El turno se acaba cuando preguntas/acusas(?? preguntar a fedepolla)
