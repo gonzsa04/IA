@@ -1,25 +1,27 @@
-﻿namespace UCM.IAV.Puzzles {
-    
+﻿namespace UCM.IAV.Puzzles
+{
+
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.UI;
     using Model;
-    
+
     // IA
     using UCM.IAV.IA;
     using UCM.IAV.IA.Search;
-    using UCM.IAV.IA.Search.Informed; 
+    using UCM.IAV.IA.Search.Informed;
     using UCM.IAV.IA.Util;
 
     // enums
     public enum TipoEstancia { Biblioteca, Cocina, Comedor, Estudio, Pasillo, Recibidor, Billar, Baile, Terraza };
-    public enum TipoArmas { Candelabro, Cuerda, Herramiernta, Pistola, Puñal, Tuberia };
+    public enum TipoArmas { Candelabro, Cuerda, Herramienta, Pistola, Puñal, Tuberia };
     public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
     // gestiona el juego del tanque
-    public class GameManager : MonoBehaviour {
+    public class GameManager : MonoBehaviour
+    {
 
         // GameObjects
         public static GameManager instance; // para poder ser llamado desde los demas .cs (static)
@@ -32,7 +34,7 @@
         public List<Character> characters;  // jugadores y sospechosos
         public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
         public List<int> namesAux; // nombres de los jugadores y sospechosos
-        public string[] armas = { "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia" };
+        public string[] armas = { "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia"};
         public List<int> armasAux; // nombres de los tipos de arma
         public string[] estancias = { "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza" };
         public List<int> estanciasAux; // nombres de los tipos de estancia
@@ -88,7 +90,7 @@
             turnos = new List<string>();
             libretas = new Libreta[numPlayers];
 
-            for(int i = 0; i < numPlayers; i++)
+            for (int i = 0; i < numPlayers; i++)
             {
                 libretas[i] = Instantiate(libPrefab, canvas.transform);
                 libretas[i].setPlayerName(names[i]);
@@ -99,7 +101,8 @@
         }
 
         // Inicializa o reinicia el gestor
-        private void Initialize(int rows, int columns, int roomLength) {
+        private void Initialize(int rows, int columns, int roomLength)
+        {
             if (tablero == null) throw new InvalidOperationException("The board reference is null");
             if (timeNumber == null) throw new InvalidOperationException("The timeNumber reference is null");
             if (stepsNumber == null) throw new InvalidOperationException("The stepsNumber reference is null");
@@ -108,7 +111,7 @@
             // init de variables
             for (int i = 0; i < characters.Count; i++)
             {
-                if(characters[i].ficha_ != null) Destroy(characters[i].ficha_.gameObject);
+                if (characters[i].ficha_ != null) Destroy(characters[i].ficha_.gameObject);
             }
 
             turnos.Clear();
@@ -163,7 +166,7 @@
             namesAux = new List<int>();
             armasAux = new List<int>();
             estanciasAux = new List<int>();
-            for(int i = 0; i < estancias.Length; i++)
+            for (int i = 0; i < estancias.Length; i++)
             {
                 if (i < names.Length - numPlayers) namesAux.Add(i);
                 if (i < armas.Length) armasAux.Add(i);
@@ -217,10 +220,13 @@
             int numCards = namesAux.Count + armasAux.Count + estanciasAux.Count;
             for (int i = 0; i < numPlayers; i++)
             {
-                for(int j = 0; j < numCards/numPlayers; j++)
+                Player aux = (Player)characters[i];
+                string card = "";
+                for (int j = 0; j < numCards / numPlayers; j++)
                 {
-                    Player aux = (Player)characters[i];
-                    aux.cards_.Add(chooseCard());
+                    card = chooseCard();
+                    aux.cards_.Add(card);
+                    aux.libreta_.receiveCard(aux.cards_[j], i);
                 }
             }
         }
@@ -279,7 +285,7 @@
 
         public Position getPosEstancia(int r, int c)
         {
-            return new Position((r/ roomLength) *roomLength, (c / roomLength) *roomLength);
+            return new Position((r / roomLength) * roomLength, (c / roomLength) * roomLength);
         }
 
         public TipoEstancia getTipoEstancia(int r, int c)
@@ -301,14 +307,14 @@
                 while (j < roomLength && characNum <= 0)
                 {
                     Position pos = getPosEstancia(posL.GetRow(), posL.GetColumn());
-                    if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn()) || 
+                    if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn()) ||
                         tablero.tienePlayer(i + pos.GetRow(), j + pos.GetColumn()))
                         characNum++;
                     j++;
                 }
                 i++;
             }
-            if(characNum == 0) nextTurn();                 //Si no hay sospechosos pasamos turno
+            if (characNum == 0) nextTurn();                 //Si no hay sospechosos pasamos turno
         }
 
         public void moveSuspect(Suspect sus)
@@ -317,7 +323,8 @@
             Position suspectE, playerE;
             suspectE = getPosEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
             playerE = getPosEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
-            if (suspectE.GetRow() == playerE.GetRow() && suspectE.GetColumn() == playerE.GetColumn()) {
+            if (suspectE.GetRow() == playerE.GetRow() && suspectE.GetColumn() == playerE.GetColumn())
+            {
                 armasPanel.SetActive(true);
                 Player aux = (Player)characters[(int)turn];
                 aux.libreta_.sospechosoActual = sus.index;
@@ -326,7 +333,7 @@
             {
                 r = playerE.GetRow();
                 c = playerE.GetColumn();
-                while (r < playerE.GetRow() + roomLength &&  (tablero.tienePlayer(r,c) || tablero.tieneSuspect(r, c)))
+                while (r < playerE.GetRow() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
                 {
                     while (c < playerE.GetColumn() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
                     {
@@ -385,8 +392,8 @@
 
         public void enableLibretas(int index)
         {
-             for(int i = 0; i < numPlayers; i++)
-             {
+            for (int i = 0; i < numPlayers; i++)
+            {
                 if (i == index)
                     libretas[i].gameObject.SetActive(!libretas[i].gameObject.activeSelf);
                 else
@@ -397,7 +404,7 @@
         {
             for (int i = 0; i < numPlayers; i++)
             {
-                    libretas[i].gameObject.SetActive(false);
+                libretas[i].gameObject.SetActive(false);
             }
         }
 
@@ -431,7 +438,7 @@
             nextTurn();
 
             int remainingPlayers = numPlayers;
-            for(int i = 0; i < numPlayers; i++)
+            for (int i = 0; i < numPlayers; i++)
             {
                 if (turnos[i] == "") remainingPlayers--;
             }
@@ -447,7 +454,8 @@
         }
 
         // Pone los contadores de información a cero
-        private void CleanInfo() {
+        private void CleanInfo()
+        {
             time = 0.0d;
             steps = 0;
             cost = 0;
@@ -478,15 +486,17 @@
         }
 
         // Salir de la aplicación
-        public void Quit() {
+        public void Quit()
+        {
             Application.Quit();
         }
 
         // Cadena de texto representativa
-        public override string ToString() {
+        public override string ToString()
+        {
             return "Manager of " + tablero.ToString() + " over " + puzzle.ToString();
         }
     }
 }
 
-    
+

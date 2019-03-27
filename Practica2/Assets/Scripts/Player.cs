@@ -36,7 +36,7 @@
                     if (j != turno)
                     {
                         Player aux = (Player)GameManager.instance.characters[j];
-                        aux.libreta_.receiveCard(cards_[i], turno);
+                        aux.libreta_.receiveCard(cards_[i], index);
                     }
                 }
             }
@@ -45,11 +45,11 @@
         public override void onClicked() {
             if (!GameManager.instance.GameOver)
             {
-                int turn = GameManager.instance.getTurn();
-                Player aux = (Player)GameManager.instance.characters[turn];
+                int turno = GameManager.instance.getTurn();
+                Player aux = (Player)GameManager.instance.characters[turno];
                 if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
                 {
-                    aux.libreta_.receiveCard(cards_[rnd.Next(0, cards_.Count)], turn);
+                    aux.libreta_.receiveCard(cards_[rnd.Next(0, cards_.Count)], index);
                     GameManager.instance.nextTurn();
                 }
                 else

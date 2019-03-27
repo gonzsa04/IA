@@ -2896,7 +2896,7 @@ MonoBehaviour:
   tablero: {fileID: 890708372}
   fichaPrefab: {fileID: 114720932642159502, guid: 9a8f17bf68e8b71459bda8568f41fb58,
     type: 2}
-  libPrefab: {fileID: 114938503464679798, guid: f852a3f8c5f562943b6d09340d5565fc,
+  libPrefab: {fileID: 114834583078876290, guid: f852a3f8c5f562943b6d09340d5565fc,
     type: 2}
   GameOver: 0
   names:

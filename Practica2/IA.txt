@@ -1,5 +1,5 @@
 //TO DO
--Cambiar botones por textos que se creen por codigo para tener referencia a cada texto. Cambiar las listas a que se instancien.
+
 
 //QUESTIONS
 El turno se acaba cuando preguntas/acusas(?? preguntar a fedepolla)

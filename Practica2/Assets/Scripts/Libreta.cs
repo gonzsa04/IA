@@ -21,6 +21,8 @@
 
         public Text playerName;
         public GameObject panel;
+        public GameObject panel1;
+        public GameObject panel2;
 
         private GameObject textPrefab;
 
@@ -45,7 +47,7 @@
                 if(i == turno)
                     libreta[getRowFromCard(card), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.O];
                 else
-                    libreta[getRowFromCard(card), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.N];
+                    libreta[getRowFromCard(card), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.X];
             }
         }
 
@@ -61,21 +63,24 @@
         public void initMatrix()
         {
             libreta = new GameObject[DEFAULT_ROWS, DEFAULT_COLUMNS];
+            float width = panel.GetComponent<RectTransform>().rect.width;
+            float height = panel.GetComponent<RectTransform>().rect.height / cardNames.Length;
+
             textPrefab = new GameObject();
             textPrefab.AddComponent<Text>();
             textPrefab.GetComponent<Text>().font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            textPrefab.GetComponent<Text>().color = Color.black;
+            textPrefab.GetComponent<Text>().alignment = TextAnchor.MiddleCenter;
+            textPrefab.GetComponent<RectTransform>().sizeDelta = new Vector2(width, height);
+            textPrefab.GetComponent<RectTransform>().localScale = new Vector3(15, 1, 1);
 
-            float width = panel.transform.localScale.x / GameManager.instance.numPlayers;
-            float height = panel.transform.localScale.y / cardNames.Length;
-
-            for(int i = 0; i < DEFAULT_ROWS; i++)
+            for (int i = 0; i < DEFAULT_ROWS; i++)
             {
                 for (int j = 0; j < DEFAULT_COLUMNS; j++)
                 {
-                    libreta[i, j] = Instantiate(textPrefab, panel.transform);
-                    //libreta[i, j].transform.localScale = new Vector3(width, height, 0);
-                    libreta[i, j].transform.position = new Vector3(j*(libreta[i, j].transform.localScale.x), 
-                        i * (libreta[i, j].transform.localScale.y), 0) + panel.transform.position;
+                    if(j == 0) libreta[i, j] = Instantiate(textPrefab, panel.transform);
+                    if(j == 1) libreta[i, j] = Instantiate(textPrefab, panel1.transform);
+                    if(j == 2) libreta[i, j] = Instantiate(textPrefab, panel2.transform);
                 }
             }
         }
