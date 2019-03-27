@@ -28,7 +28,6 @@
         public bool OnMouseUpAsButton()
         {
             character_.onClicked();
-
             return false;
         }
 

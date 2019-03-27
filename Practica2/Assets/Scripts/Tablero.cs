@@ -108,6 +108,11 @@
             return casillas[r, c].tienePlayer;
         }
 
+        public void setTienePlayer(int r, int c, bool b)
+        {
+            casillas[r, c].tienePlayer = b;
+        }
+
         public TipoEstancia getCasEstancia(int r, int c)
         {
             return casillas[r, c].getTypeEstancia();

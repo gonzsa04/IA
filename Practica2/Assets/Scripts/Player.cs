@@ -7,6 +7,8 @@
 
     public class Player : Character
     {
+        private System.Random rnd = new System.Random();
+
         public Libreta libreta_;
         public List<string> cards_;
 
@@ -24,8 +26,37 @@
             base.move(posL, posP);
         }
 
+        public void showAllCards()
+        {
+            int turno = GameManager.instance.getTurn();
+            for(int i = 0; i < cards_.Count; i++)
+            {
+                for (int j = 0; j < GameManager.instance.numPlayers; j++)
+                {
+                    if (j != turno)
+                    {
+                        Player aux = (Player)GameManager.instance.characters[j];
+                        aux.libreta_.receiveCard(cards_[i], turno);
+                    }
+                }
+            }
+        }
+
         public override void onClicked() {
-            GameManager.instance.startCanMoveRoutine(2.0f);
+            if (!GameManager.instance.GameOver)
+            {
+                int turn = GameManager.instance.getTurn();
+                Player aux = (Player)GameManager.instance.characters[turn];
+                if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
+                {
+                    aux.libreta_.receiveCard(cards_[rnd.Next(0, cards_.Count)], turn);
+                    GameManager.instance.nextTurn();
+                }
+                else
+                {
+                    GameManager.instance.startCanMoveRoutine(2.0f);
+                }
+            }
         }
     }
 }

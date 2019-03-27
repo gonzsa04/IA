@@ -18,7 +18,10 @@
         }
 
         public override void onClicked() {
-            GameManager.instance.moveSuspect(this);
+            if (!GameManager.instance.GameOver)
+            {
+                GameManager.instance.moveSuspect(this);
+            }
         }
     }
 }

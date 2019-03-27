@@ -28,12 +28,13 @@
         public Libreta libPlayer1;          // libretas para los tres jugadores
         public Libreta libPlayer2;
         public Libreta libPlayer3;
+        public bool GameOver = false;
 
         // jugadores, estancias y armas
         public List<Character> characters;  // jugadores y sospechosos
         public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
         public List<int> namesAux; // nombres de los jugadores y sospechosos
-        public string[] armas = { "Candelabro", "Cuerda", "Herramiernta", "Pistola", "Puñal", "Tuberia" };
+        public string[] armas = { "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia" };
         public List<int> armasAux; // nombres de los tipos de arma
         public string[] estancias = { "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza" };
         public List<int> estanciasAux; // nombres de los tipos de estancia
@@ -48,6 +49,8 @@
         public Text memNumber;
         public Text turnoNumber;
         public Text cantMove;
+        public Text ganar;
+        public Text perder;
         public Canvas canvas;
         public GameObject armasPanel;
 
@@ -99,13 +102,14 @@
             if (timeNumber == null) throw new InvalidOperationException("The timeNumber reference is null");
             if (stepsNumber == null) throw new InvalidOperationException("The stepsNumber reference is null");
 
-            turnos.Clear();
 
             // init de variables
             for (int i = 0; i < characters.Count; i++)
             {
-                Destroy(characters[i].ficha_.gameObject);
+                if(characters[i].ficha_ != null) Destroy(characters[i].ficha_.gameObject);
             }
+
+            turnos.Clear();
             characters.Clear();
 
             for (int i = 0; i < names.Length; i++)
@@ -128,7 +132,8 @@
             // Se inicializa todo el tablero de casillas (representacion visual a partir de la matriz logica)
             tablero.Initialize(puzzle);
 
-            armasPanel.SetActive(false);
+            //Se reinicia el juego
+            GameOver = false;
 
             initCards(); // inicializa los distintos tipos de cartas
 
@@ -143,6 +148,7 @@
             turn = 0;
 
             // GUI
+            disableGUI();
             CleanInfo();
             UpdateInfo();
         }
@@ -222,10 +228,16 @@
         // actualiza el turno del jugador actual
         public void nextTurn()
         {
-            disableLibretas();
-            if (turn == turnos.Count-1) turn = 0;
-            else turn++;
-            UpdateInfo();
+            if (!GameOver)
+            {
+                disableLibretas();
+                armasPanel.SetActive(false);
+                cantMove.enabled = false;
+                if (turn == turnos.Count - 1) turn = 0;
+                else turn++;
+                if (turnos[turn] == "") nextTurn();
+                UpdateInfo();
+            }
         }
 
         // actualiza la matriz logica
@@ -240,6 +252,13 @@
             cantMove.enabled = true;
             yield return new WaitForSecondsRealtime(time);
             cantMove.enabled = false;
+        }
+
+        private IEnumerator changePerder(float time)
+        {
+            perder.enabled = true;
+            yield return new WaitForSecondsRealtime(time);
+            perder.enabled = false;
         }
 
         public void startCanMoveRoutine(float time)
@@ -329,10 +348,16 @@
             Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
             aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());
             armasPanel.SetActive(false);
-            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && armas[i] == armaCrimen) {
-                turnos.Remove(turnos[turn]);
+            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && armas[i] == armaCrimen)
+            {
+                Ganar();
             }
-            else nextTurn();
+            else
+            {
+                Perder(ref aux);
+            }
+
+            UpdateInfo();
         }
 
         public void changeLibreta(GameObject go)
@@ -365,6 +390,51 @@
             {
                     libretas[i].gameObject.SetActive(false);
             }
+        }
+
+        public void disableGUI()
+        {
+            disableLibretas();
+            armasPanel.SetActive(false);
+            perder.enabled = false;
+            ganar.enabled = false;
+            cantMove.enabled = false;
+        }
+
+        public int getTurn()
+        {
+            return turn;
+        }
+
+        private void startPerderCoroutine(float time)
+        {
+            perder.text = "El jugador " + names[turn] + " ha sido eliminado";
+            StartCoroutine(changePerder(time));
+        }
+
+        private void Perder(ref Player aux)
+        {
+            startPerderCoroutine(2.0f);
+            aux.showAllCards();
+            tablero.setTienePlayer(aux.ficha_.getLogicPosition().GetRow(), aux.ficha_.getLogicPosition().GetColumn(), false);
+            Destroy(aux.ficha_.gameObject);
+            turnos[turn] = "";
+            nextTurn();
+
+            int remainingPlayers = numPlayers;
+            for(int i = 0; i < numPlayers; i++)
+            {
+                if (turnos[i] == "") remainingPlayers--;
+            }
+            if (remainingPlayers <= 1) Ganar();
+        }
+
+        private void Ganar()
+        {
+            disableGUI();
+            ganar.enabled = true;
+            ganar.text = "EL JUGADOR " + names[turn] + " HA GANADO";
+            GameOver = true;
         }
 
         // Pone los contadores de información a cero

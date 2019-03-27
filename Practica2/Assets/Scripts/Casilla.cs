@@ -42,12 +42,16 @@
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
-            if (!tienePlayer && !tieneSuspect) {
-                GameManager.instance.movePlayer(this.position, this.transform.position);
-                tienePlayer = true;
-            }
-            else GameManager.instance.startCanMoveRoutine(2.0f);
+            if (!GameManager.instance.GameOver)
+            {
+                if (!tienePlayer && !tieneSuspect)
+                {
+                    GameManager.instance.movePlayer(this.position, this.transform.position);
+                    tienePlayer = true;
+                }
+                else GameManager.instance.startCanMoveRoutine(2.0f);
 
+            }
             return false;
         }
         

@@ -1,5 +1,5 @@
--Comprobar cartas de los demas jugadores
+//TO DO
+-Cambiar botones por textos que se creen por codigo para tener referencia a cada texto. Cambiar las listas a que se instancien.
 
--Corregir eliminar turnos
--Ganar (sistema de acusaciones)
--El turno se acaba cuando preguntas/acusas(?? preguntar a fedepolla)
+//QUESTIONS
+El turno se acaba cuando preguntas/acusas(?? preguntar a fedepolla)
