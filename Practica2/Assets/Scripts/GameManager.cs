@@ -25,9 +25,7 @@
         public static GameManager instance; // para poder ser llamado desde los demas .cs (static)
         public Tablero tablero;             // tablero de casillas (representacion visual)
         public Ficha fichaPrefab;           // prefab de player generico
-        public Libreta libPlayer1;          // libretas para los tres jugadores
-        public Libreta libPlayer2;
-        public Libreta libPlayer3;
+        public Libreta libPrefab;          // libretas para los tres jugadores
         public bool GameOver = false;
 
         // jugadores, estancias y armas
@@ -89,9 +87,13 @@
             characters = new List<Character>();
             turnos = new List<string>();
             libretas = new Libreta[numPlayers];
-            libretas[0] = libPlayer1;
-            libretas[1] = libPlayer2;
-            libretas[2] = libPlayer3;
+
+            for(int i = 0; i < numPlayers; i++)
+            {
+                libretas[i] = Instantiate(libPrefab, canvas.transform);
+                libretas[i].setPlayerName(names[i]);
+                libretas[i].initMatrix();
+            }
 
             Initialize(rows, columns, roomLength);
         }
@@ -365,11 +367,18 @@
             Pair parComp = go.GetComponent<Pair>();
             int r = parComp.R, c = parComp.C;
             Player aux = (Player)characters[(int)turn];
-            if (aux.libreta_.libreta[r, c] == Libreta.TipoLibreta.O)
+            if (aux.libreta_.libreta[r, c].GetComponent<Text>().text == aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.O])
             {
-                aux.libreta_.libreta[r, c] = Libreta.TipoLibreta.N;
+                aux.libreta_.libreta[r, c].GetComponent<Text>().text = aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.N];
             }
-            else aux.libreta_.libreta[r, c]++;
+            else if (aux.libreta_.libreta[r, c].GetComponent<Text>().text == aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.N])
+            {
+                aux.libreta_.libreta[r, c].GetComponent<Text>().text = aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.X];
+            }
+            else if (aux.libreta_.libreta[r, c].GetComponent<Text>().text == aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.X])
+            {
+                aux.libreta_.libreta[r, c].GetComponent<Text>().text = aux.libreta_.textoLibreta[(int)Libreta.TipoLibreta.O];
+            }
 
             go.GetComponentInChildren<Text>().text = aux.libreta_.libreta[r, c].ToString();
         }
