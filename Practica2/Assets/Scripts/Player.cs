@@ -51,15 +51,17 @@
             {
                 int turno = GameManager.instance.getTurn();
                 Player aux = (Player)GameManager.instance.characters[turno];
-                if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
-                {
-                    GameManager.instance.estanciasSupPanel.SetActive(true);
-                    GameManager.instance.playerPreguntado = ficha_.name_;
-                    aux.supposed = true;
-                }
-                else
-                {
-                    GameManager.instance.startCanMoveRoutine(2.0f);
+                if(ficha_.name_ != aux.ficha_.name_){
+                    if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
+                    {
+                        GameManager.instance.estanciasSupPanel.SetActive(true);
+                        GameManager.instance.playerPreguntado = ficha_.name_;
+                        aux.supposed = true;
+                    }
+                    else
+                    {
+                        GameManager.instance.startCanMoveRoutine(2.0f);
+                    }
                 }
             }
         }
