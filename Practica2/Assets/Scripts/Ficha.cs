@@ -6,9 +6,9 @@
 
     // clase ficha (sospechosos y jugadores)
     public class Ficha : MonoBehaviour {
-        private string name_;     // nombre que escribira el texto
         private Character character_;
 
+        public string name_;      // nombre que escribira el texto
         public Position position; // posicion logica
 
         public void setCharacter(Character character) {
@@ -21,7 +21,7 @@
         {
             this.name_ = name;
             this.position = position;
-            this.gameObject.GetComponent<TextMesh>().text = name;
+            this.gameObject.GetComponent<TextMesh>().text = this.name_;
         }
 
         // al ser pulsado

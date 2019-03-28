@@ -47,7 +47,6 @@
                 if (!tienePlayer && !tieneSuspect)
                 {
                     GameManager.instance.movePlayer(this.position, this.transform.position);
-                    tienePlayer = true;
                 }
                 else GameManager.instance.startCanMoveRoutine(2.0f);
 

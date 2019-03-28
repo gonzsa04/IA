@@ -11,6 +11,9 @@
 
         public Libreta libreta_;
         public List<string> cards_;
+        public bool moved = false;
+        public bool asked = false;
+        public bool supposed = false;
 
         public Player(Ficha fichaPrefab, Libreta lib, int i) : base(fichaPrefab, i)
         {
@@ -24,6 +27,7 @@
             GameManager.instance.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
             libreta_.estanciaActual = GameManager.instance.getTipoEstancia(posL.GetRow(), posL.GetColumn());
             base.move(posL, posP);
+            moved = true;
         }
 
         public void showAllCards()
@@ -49,13 +53,42 @@
                 Player aux = (Player)GameManager.instance.characters[turno];
                 if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
                 {
-                    aux.libreta_.receiveCard(cards_[rnd.Next(0, cards_.Count)], index);
-                    GameManager.instance.nextTurn();
+                    GameManager.instance.estanciasSupPanel.SetActive(true);
+                    GameManager.instance.playerPreguntado = ficha_.name_;
+                    aux.supposed = true;
                 }
                 else
                 {
                     GameManager.instance.startCanMoveRoutine(2.0f);
                 }
+            }
+        }
+
+        public void makeSugestion()
+        {
+            if (!GameManager.instance.GameOver)
+            {
+                List<int> coincidentes = new List<int>();
+                int turno = GameManager.instance.getTurn();
+                Player aux = (Player)GameManager.instance.characters[turno];
+                for (int i = 0; i < GameManager.instance.Suposicion.Count; i++)
+                {
+                    for (int j = 0; j < cards_.Count; j++)
+                    {
+                        if (GameManager.instance.Suposicion[i] == cards_[j]) coincidentes.Add(j);
+                    }
+                }
+
+                int card = -1;
+                if (coincidentes.Count > 0)
+                {
+                    card = rnd.Next(0, coincidentes.Count);
+                    aux.libreta_.receiveCard(cards_[card], index);
+                }
+                if(card == -1) GameManager.instance.cartaRecibida = "Ninguna carta";
+                else GameManager.instance.cartaRecibida = cards_[card];
+                GameManager.instance.startCartaCoroutine(2.0f);
+
             }
         }
     }

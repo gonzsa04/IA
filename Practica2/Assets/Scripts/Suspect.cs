@@ -13,8 +13,13 @@
 
         public new void move(Position posL, Vector3 posP)
         {
-            GameManager.instance.changeTieneSuspect(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
-            base.move(posL, posP);
+            Player aux = (Player)GameManager.instance.characters[GameManager.instance.getTurn()];
+            if (!aux.moved && !aux.asked && !aux.supposed)
+            {
+                GameManager.instance.changeTieneSuspect(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
+                base.move(posL, posP);
+                aux.asked = true;
+            }
         }
 
         public override void onClicked() {

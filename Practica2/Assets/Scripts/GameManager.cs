@@ -34,10 +34,12 @@
         public List<Character> characters;  // jugadores y sospechosos
         public string[] names = { "h0", "b1", "b2", "A", "B", "C", "M", "P", "R" };
         public List<int> namesAux; // nombres de los jugadores y sospechosos
-        public string[] armas = { "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia"};
-        public List<int> armasAux; // nombres de los tipos de arma
+        public string[] weapons = { "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia"};
+        public List<int> weaponsAux; // nombres de los tipos de arma
         public string[] estancias = { "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza" };
         public List<int> estanciasAux; // nombres de los tipos de estancia
+        public List<string> Suposicion;
+        public int supos = 0;
         public int numPlayers = 3;
 
         // Interfaz
@@ -48,11 +50,19 @@
         public Text depthNumber;
         public Text memNumber;
         public Text turnoNumber;
+        public Text PlayerNumber;
+        public Text CartaNumber;
         public Text cantMove;
         public Text ganar;
         public Text perder;
         public Canvas canvas;
         public GameObject armasPanel;
+        public GameObject cartaPanel;
+        public GameObject armasSupPanel;
+        public GameObject sospechososSupPanel;
+        public GameObject estanciasSupPanel;
+
+        [HideInInspector] public string cartaRecibida, playerPreguntado;
 
         // Dimensiones iniciales del juego
         public int rows = 9;
@@ -89,6 +99,7 @@
             characters = new List<Character>();
             turnos = new List<string>();
             libretas = new Libreta[numPlayers];
+            Suposicion = new List<string>();
 
             for (int i = 0; i < numPlayers; i++)
             {
@@ -144,7 +155,7 @@
 
             // se elige un arma, un sospechoso y una estancia
             sospechosoCrimen = names[chooseCardFromType(ref namesAux) + numPlayers];
-            armaCrimen = armas[chooseCardFromType(ref armasAux)];
+            armaCrimen = weapons[chooseCardFromType(ref weaponsAux)];
             estanciaCrimen = estancias[chooseCardFromType(ref estanciasAux)];
 
             // repartimos las cartas sobrantes entre los jugadores
@@ -164,12 +175,12 @@
         private void initCards()
         {
             namesAux = new List<int>();
-            armasAux = new List<int>();
+            weaponsAux = new List<int>();
             estanciasAux = new List<int>();
             for (int i = 0; i < estancias.Length; i++)
             {
                 if (i < names.Length - numPlayers) namesAux.Add(i);
-                if (i < armas.Length) armasAux.Add(i);
+                if (i < weapons.Length) weaponsAux.Add(i);
                 estanciasAux.Add(i);
             }
         }
@@ -190,8 +201,8 @@
                         if (index != -1) return names[index + numPlayers];
                         break;
                     case 1:
-                        index = chooseCardFromType(ref armasAux);
-                        if (index != -1) return armas[index];
+                        index = chooseCardFromType(ref weaponsAux);
+                        if (index != -1) return weapons[index];
                         break;
                     default:
                         index = chooseCardFromType(ref estanciasAux);
@@ -217,15 +228,13 @@
         // reparte las cartas sobrantes entre el resto de jugadores
         private void dealCards()
         {
-            int numCards = namesAux.Count + armasAux.Count + estanciasAux.Count;
+            int numCards = namesAux.Count + weaponsAux.Count + estanciasAux.Count;
             for (int i = 0; i < numPlayers; i++)
             {
                 Player aux = (Player)characters[i];
-                string card = "";
                 for (int j = 0; j < numCards / numPlayers; j++)
                 {
-                    card = chooseCard();
-                    aux.cards_.Add(card);
+                    aux.cards_.Add(chooseCard());
                     aux.libreta_.receiveCard(aux.cards_[j], i);
                 }
             }
@@ -238,9 +247,15 @@
         {
             if (!GameOver)
             {
+                Suposicion.Clear();
+                supos = 0;
+                Player aux = (Player)characters[turn];
+                aux.moved = false; aux.asked = false; aux.supposed = false;
                 disableLibretas();
                 armasPanel.SetActive(false);
-                cantMove.enabled = false;
+                estanciasSupPanel.SetActive(false);
+                sospechososSupPanel.SetActive(false);
+                armasSupPanel.SetActive(false);
                 if (turn == turnos.Count - 1) turn = 0;
                 else turn++;
                 if (turnos[turn] == "") nextTurn();
@@ -267,6 +282,13 @@
             perder.enabled = true;
             yield return new WaitForSecondsRealtime(time);
             perder.enabled = false;
+        }
+
+        private IEnumerator changeCartaPanel(float time)
+        {
+            cartaPanel.SetActive(true);
+            yield return new WaitForSecondsRealtime(time);
+            cartaPanel.SetActive(false);
         }
 
         public void startCanMoveRoutine(float time)
@@ -297,24 +319,29 @@
         public void movePlayer(Position posL, Vector3 posP)
         {
             Player p = (Player)characters[(int)turn];
-            p.move(posL, posP);
 
-            int characNum = 0, i = 0, j;
-
-            while (i < roomLength && characNum <= 0)
+            if (!p.asked && !p.moved && !p.supposed)
             {
-                j = 0;
-                while (j < roomLength && characNum <= 0)
+                p.move(posL, posP);
+
+                int characNum = 0, i = 0, j;
+
+                while (i < roomLength && characNum <= 0)
                 {
-                    Position pos = getPosEstancia(posL.GetRow(), posL.GetColumn());
-                    if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn()) ||
-                        tablero.tienePlayer(i + pos.GetRow(), j + pos.GetColumn()))
-                        characNum++;
-                    j++;
+                    j = 0;
+                    while (j < roomLength && characNum <= 0)
+                    {
+                        Position pos = getPosEstancia(posL.GetRow(), posL.GetColumn());
+                        if (tablero.tieneSuspect(i + pos.GetRow(), j + pos.GetColumn()) ||
+                            tablero.tienePlayer(i + pos.GetRow(), j + pos.GetColumn()))
+                            characNum++;
+                        j++;
+                    }
+                    i++;
                 }
-                i++;
+                if (characNum == 0) nextTurn();                 //Si no hay sospechosos pasamos turno
+                tablero.setTienePlayer(posL.GetRow(), posL.GetColumn(), true);
             }
-            if (characNum == 0) nextTurn();                 //Si no hay sospechosos pasamos turno
         }
 
         public void moveSuspect(Suspect sus)
@@ -357,7 +384,7 @@
             Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
             aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());
             armasPanel.SetActive(false);
-            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && armas[i] == armaCrimen)
+            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && weapons[i] == armaCrimen)
             {
                 Ganar();
             }
@@ -367,6 +394,31 @@
             }
 
             UpdateInfo();
+        }
+
+        public void seleccionarSuposicion(string suposicion)
+        {
+            Suposicion.Add(suposicion);
+            supos++;
+            if (supos == 1)
+            {
+                estanciasSupPanel.SetActive(false);
+                sospechososSupPanel.SetActive(true);
+            }
+            else if (supos == 2)
+            {
+                sospechososSupPanel.SetActive(false);
+                armasSupPanel.SetActive(true);
+            }
+            else
+            {
+                int i = 0;
+                while (i < numPlayers && characters[i].ficha_.name_ != playerPreguntado) i++;
+                Player aux = (Player)characters[i];
+                aux.makeSugestion();
+                armasSupPanel.SetActive(false);
+                nextTurn();
+            }
         }
 
         public void changeLibreta(GameObject go)
@@ -412,8 +464,12 @@
         {
             disableLibretas();
             armasPanel.SetActive(false);
-            perder.enabled = false;
+            estanciasSupPanel.SetActive(false);
+            sospechososSupPanel.SetActive(false);
+            armasSupPanel.SetActive(false);
             ganar.enabled = false;
+            cartaPanel.SetActive(false);
+            perder.enabled = false;
             cantMove.enabled = false;
         }
 
@@ -421,7 +477,11 @@
         {
             return turn;
         }
-
+        public void startCartaCoroutine(float time)
+        {
+            UpdateInfo();
+            StartCoroutine(changeCartaPanel(time));
+        }
         private void startPerderCoroutine(float time)
         {
             perder.text = "El jugador " + names[turn] + " ha sido eliminado";
@@ -474,6 +534,8 @@
             memNumber.text = memSize.ToString();
             depthNumber.text = depth.ToString();
             turnoNumber.text = turnos[turn];
+            CartaNumber.text = cartaRecibida;
+            PlayerNumber.text = playerPreguntado;
         }
 
         // se crea un juego nuevo con casillas aleatorias
