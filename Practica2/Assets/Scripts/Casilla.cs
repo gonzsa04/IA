@@ -37,8 +37,17 @@
             UpdateColor();
         }
 
-        // al ser pulsado
+        // al ser pulsado, si es el turno del jugador, le movemos
         public bool OnMouseUpAsButton()
+        {
+            if (GameManager.instance.isPlayerTurn())
+                onClicked();
+            
+            return false;
+        }
+
+        // mueve al jugador actual a esta casilla
+        public void onClicked()
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
@@ -49,9 +58,7 @@
                     GameManager.instance.movePlayer(this.position, this.transform.position);
                 }
                 else GameManager.instance.startCanMoveRoutine(2.0f);
-
             }
-            return false;
         }
         
         public TipoEstancia getTypeEstancia() { return this.type; }

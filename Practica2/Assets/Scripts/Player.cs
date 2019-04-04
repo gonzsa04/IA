@@ -70,14 +70,14 @@
         {
             if (!GameManager.instance.GameOver)
             {
-                List<int> coincidentes = new List<int>();
+                List<string> coincidentes = new List<string>();
                 int turno = GameManager.instance.getTurn();
                 Player aux = (Player)GameManager.instance.characters[turno];
                 for (int i = 0; i < GameManager.instance.Suposicion.Count; i++)
                 {
                     for (int j = 0; j < cards_.Count; j++)
                     {
-                        if (GameManager.instance.Suposicion[i] == cards_[j]) coincidentes.Add(j);
+                        if (GameManager.instance.Suposicion[i] == cards_[j]) coincidentes.Add(cards_[j]);
                     }
                 }
 
@@ -85,10 +85,10 @@
                 if (coincidentes.Count > 0)
                 {
                     card = rnd.Next(0, coincidentes.Count);
-                    aux.libreta_.receiveCard(cards_[card], index);
+                    aux.libreta_.receiveCard(coincidentes[card], index);
                 }
-                if(card == -1) GameManager.instance.cartaRecibida = "Ninguna carta";
-                else GameManager.instance.cartaRecibida = cards_[card];
+                if(card == -1) GameManager.instance.cartaRecibida = "Ninguna";
+                else GameManager.instance.cartaRecibida = coincidentes[card];
                 GameManager.instance.startCartaCoroutine(2.0f);
 
             }

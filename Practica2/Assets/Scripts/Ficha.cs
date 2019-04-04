@@ -27,7 +27,8 @@
         // al ser pulsado
         public bool OnMouseUpAsButton()
         {
-            character_.onClicked();
+            if (GameManager.instance.isPlayerTurn())
+                character_.onClicked();
             return false;
         }
 

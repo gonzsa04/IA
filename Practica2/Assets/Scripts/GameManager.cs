@@ -263,6 +263,11 @@
             }
         }
 
+        public bool isPlayerTurn()
+        {
+            return turn == 0; 
+        }
+
         // actualiza la matriz logica
         public void updatePuzzle(TipoEstancia type, int r, int c)
         {
@@ -350,13 +355,14 @@
             Position suspectE, playerE;
             suspectE = getPosEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
             playerE = getPosEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
+            Player aux = (Player)characters[(int)turn];
+
             if (suspectE.GetRow() == playerE.GetRow() && suspectE.GetColumn() == playerE.GetColumn())
             {
                 armasPanel.SetActive(true);
-                Player aux = (Player)characters[(int)turn];
                 aux.libreta_.sospechosoActual = sus.index;
             }
-            else
+            else if (!aux.moved && !aux.asked && !aux.supposed)
             {
                 r = playerE.GetRow();
                 c = playerE.GetColumn();
