@@ -51,6 +51,23 @@
             }
         }
 
+        public void notReceivedCards(int turno)
+        {
+            for(int i = 0; i< DEFAULT_ROWS; i++)
+            {
+                if(libreta[i, turno].GetComponent<Text>().text != textoLibreta[(int)TipoLibreta.O])
+                    libreta[i, turno].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.X];
+            }
+        }
+
+        public void notCoincidentCardsFrom(int i)
+        {
+            for(int j = 0; j < GameManager.instance.Suposicion.Count; j++)
+            {
+                libreta[getRowFromCard(GameManager.instance.Suposicion[j]), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.X];
+            }
+        }
+
         public void setPlayerName(string name) { playerName.text = name; }
 
         private int getRowFromCard(string card)

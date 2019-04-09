@@ -124,6 +124,11 @@
             return casillas[r, c].transform.position;
         }
 
+        public void clickCas(int r, int c)
+        {
+            casillas[r, c].onClicked();
+        }
+
         // Cadena de texto representativa
         public override string ToString() {
             return "Board{" + casillas.ToString() + "}";

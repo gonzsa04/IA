@@ -41,6 +41,7 @@
         public List<string> Suposicion;
         public int supos = 0;
         public int numPlayers = 3;
+        public int humanPlayers = 1;
 
         // Interfaz
         public Text timeNumber;
@@ -132,7 +133,8 @@
             {
                 if (i < numPlayers)
                 {
-                    characters.Add(new Player(fichaPrefab, libretas[i], i));
+                    if(i < humanPlayers)characters.Add(new Player(fichaPrefab, libretas[i], i));
+                    else characters.Add(new Bot1(fichaPrefab, libretas[i], i));
                     turnos.Add(names[i]);
                 }
                 else characters.Add(new Suspect(fichaPrefab, i));
@@ -237,10 +239,17 @@
                     aux.cards_.Add(chooseCard());
                     aux.libreta_.receiveCard(aux.cards_[j], i);
                 }
+                aux.libreta_.notReceivedCards(i);
             }
         }
 
         //------------------------------------------------------------------------
+
+        void Update()
+        {
+            Player aux = (Player)characters[turn];
+            if(!aux.asked && !aux.moved) aux.update();
+        }
 
         // actualiza el turno del jugador actual
         public void nextTurn()
@@ -351,7 +360,6 @@
 
         public void moveSuspect(Suspect sus)
         {
-            int r, c;
             Position suspectE, playerE;
             suspectE = getPosEstancia(sus.ficha_.position.GetRow(), sus.ficha_.position.GetColumn());
             playerE = getPosEstancia(characters[(int)turn].ficha_.getLogicPosition().GetRow(), characters[(int)turn].ficha_.getLogicPosition().GetColumn());
@@ -364,28 +372,39 @@
             }
             else if (!aux.moved && !aux.asked && !aux.supposed)
             {
-                r = playerE.GetRow();
-                c = playerE.GetColumn();
-                while (r < playerE.GetRow() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
-                {
-                    while (c < playerE.GetColumn() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
-                    {
-                        c++;
-                    }
-                    if (c >= playerE.GetColumn() + roomLength)
-                    {
-                        r++;
-                        c = playerE.GetColumn();
-                    }
-                }
-                sus.move(new Position(r, c), tablero.getCasPos(r, c));
-                tablero.changeTieneSuspect(r, c);
+                Position freePos = getFreeCasInEs(playerE);
+                sus.move(freePos, tablero.getCasPos(freePos.GetRow(), freePos.GetColumn()));
+                tablero.changeTieneSuspect(freePos.GetRow(), freePos.GetColumn());
             }
+        }
+
+        public Position getFreeCasInEs(Position estancePos)
+        {
+            int r, c;
+            r = estancePos.GetRow();
+            c = estancePos.GetColumn();
+            while (r < estancePos.GetRow() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
+            {
+                while (c < estancePos.GetColumn() + roomLength && (tablero.tienePlayer(r, c) || tablero.tieneSuspect(r, c)))
+                {
+                    c++;
+                }
+                if (c >= estancePos.GetColumn() + roomLength)
+                {
+                    r++;
+                    c = estancePos.GetColumn();
+                }
+            }
+            return new Position(r, c);
+        }
+
+        public void clickTab(Position pos)
+        {
+            tablero.clickCas(pos.GetRow(), pos.GetColumn());
         }
 
         public void Acusar(int i)
         {
-            //FALTA ACCEDER A LA LIBRETA DEL JUGADOR ACTUAL(SOSPECHOSO, ARMA(i), ESTANCIA)
             Player aux = (Player)characters[(int)turn];
             Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
             aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());

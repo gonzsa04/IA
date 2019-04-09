@@ -22,6 +22,8 @@
             cards_ = new List<string>();
         }
 
+        public virtual void update() { }
+
         public new void move(Position posL, Vector3 posP)
         {
             GameManager.instance.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
@@ -86,9 +88,13 @@
                 {
                     card = rnd.Next(0, coincidentes.Count);
                     aux.libreta_.receiveCard(coincidentes[card], index);
+                    GameManager.instance.cartaRecibida = coincidentes[card];
                 }
-                if(card == -1) GameManager.instance.cartaRecibida = "Ninguna";
-                else GameManager.instance.cartaRecibida = coincidentes[card];
+                else
+                {
+                    GameManager.instance.cartaRecibida = "Ninguna";
+                    aux.libreta_.notCoincidentCardsFrom(index);
+                }
                 GameManager.instance.startCartaCoroutine(2.0f);
 
             }
