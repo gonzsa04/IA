@@ -7,13 +7,8 @@
 
     public class Libreta : MonoBehaviour {
 
-        private static readonly int DEFAULT_ROWS = 21;
-        private static readonly int DEFAULT_COLUMNS = 3;
-        private string[] cardNames = {
-            "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza",
-            "A", "B", "C", "M", "P", "R",
-            "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia"
-        };
+        public int DEFAULT_ROWS = 21;
+        public int DEFAULT_COLUMNS = 3;
 
         public enum TipoLibreta { N, X, O };
         public string[] textoLibreta = { " ", "X", "O" };
@@ -25,13 +20,22 @@
         public GameObject panel2;
 
         private GameObject textPrefab;
+        private GameManager gm;
+
+        public string[] cardNames = {
+            "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza",
+            "A", "B", "C", "M", "P", "R",
+            "Candelabro", "Cuerda", "Herramienta", "Pistola", "Puñal", "Tuberia"
+        };
 
         [HideInInspector] public TipoEstancia estanciaActual = TipoEstancia.Biblioteca;
         [HideInInspector] public int sospechosoActual = 0;
 
         public void Initialize()
         {
-            for(int i = 0; i < DEFAULT_ROWS; i++)
+            gm = GameManager.instance;
+
+            for (int i = 0; i < DEFAULT_ROWS; i++)
             {
                 for(int j = 0; j < DEFAULT_COLUMNS; j++)
                 {
@@ -62,19 +66,98 @@
 
         public void notCoincidentCardsFrom(int i)
         {
-            for(int j = 0; j < GameManager.instance.Suposicion.Count; j++)
+            for(int j = 0; j < gm.Suposicion.Count; j++)
             {
-                libreta[getRowFromCard(GameManager.instance.Suposicion[j]), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.X];
+                libreta[getRowFromCard(gm.Suposicion[j]), i].GetComponent<Text>().text = textoLibreta[(int)TipoLibreta.X];
             }
         }
 
         public void setPlayerName(string name) { playerName.text = name; }
 
-        private int getRowFromCard(string card)
+        public int getRowFromCard(string card)
         {
             int i = 0;
             while (i < DEFAULT_ROWS && cardNames[i] != card) i++;
             return i;
+        }
+
+        public int getMinPlayerInfo()
+        {
+            int index = -1, maxBlanks = -1;
+            for(int i = 0; i < DEFAULT_COLUMNS; i++)
+            {
+                if(i != gm.getTurn())
+                {
+                    int blanks = 0;
+                    for (int j = 0; j < DEFAULT_ROWS; j++)
+                    {
+                        if (libreta[j, i].GetComponent<Text>().text == textoLibreta[(int)TipoLibreta.N])
+                            blanks++;
+                    }
+                    if (blanks > maxBlanks)
+                    {
+                        maxBlanks = blanks;
+                        index = i;
+                    }
+                }
+            }
+
+            return index;
+        }
+
+        public string getFirstBlankEstanceFrom(int player)
+        {
+            int i = 0; int backup = -1;
+            while (i < gm.estancias.Length &&
+                libreta[i, player].GetComponent<Text>().text != textoLibreta[(int)TipoLibreta.N])
+            {
+                if (backup == -1 && libreta[i, player].GetComponent<Text>().text == textoLibreta[(int)TipoLibreta.X])
+                    backup = i;
+                i++;
+            }
+
+            if (i < gm.estancias.Length) return gm.estancias[i];
+            else return gm.estancias[backup];
+        }
+
+        public string getFirstBlankSuspectFrom(int player)
+        {
+            int i = gm.estancias.Length; int backup = -1;
+            while (i < DEFAULT_ROWS - gm.weapons.Length &&
+                libreta[i, player].GetComponent<Text>().text != textoLibreta[(int)TipoLibreta.N])
+            {
+                if (backup == -1 && libreta[i, player].GetComponent<Text>().text == textoLibreta[(int)TipoLibreta.X])
+                    backup = i;
+                i++;
+            }
+
+            if (i < DEFAULT_ROWS - gm.weapons.Length) return gm.names[i - gm.estancias.Length + gm.numPlayers];
+            else return gm.names[backup - gm.estancias.Length + gm.numPlayers];
+        }
+
+        public string getFirstBlankWeaponFrom(int player)
+        {
+            int i = gm.estancias.Length + gm.names.Length - gm.numPlayers;
+            int backup = -1;
+            while (i < DEFAULT_ROWS && libreta[i, player].GetComponent<Text>().text != textoLibreta[(int)TipoLibreta.N])
+            {
+                if (backup == -1 && libreta[i, player].GetComponent<Text>().text == textoLibreta[(int)TipoLibreta.X])
+                    backup = i;
+                i++;
+            }
+
+            if (i < DEFAULT_ROWS)
+                return gm.weapons[i - gm.estancias.Length - gm.names.Length +
+                    gm.numPlayers];
+            else return gm.weapons[backup - gm.estancias.Length - gm.names.Length +
+                    gm.numPlayers];
+        }
+
+        public bool completedRow(int r)
+        {
+            int i = 0;
+            while (i < DEFAULT_COLUMNS && libreta[r, i].GetComponent<Text>().text == textoLibreta[(int)TipoLibreta.X]) i++;
+            return (i == DEFAULT_COLUMNS);
         }
 
         public void initMatrix()

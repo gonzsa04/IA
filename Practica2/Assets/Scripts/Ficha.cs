@@ -7,6 +7,7 @@
     // clase ficha (sospechosos y jugadores)
     public class Ficha : MonoBehaviour {
         private Character character_;
+        private GameManager gm;
 
         public string name_;      // nombre que escribira el texto
         public Position position; // posicion logica
@@ -15,7 +16,7 @@
             character_ = character;
         }
 
-        public Ficha() : base() { }
+        public Ficha() : base() { gm = GameManager.instance; }
 
         public void Initialize(string name, Position position)
         {
@@ -27,7 +28,7 @@
         // al ser pulsado
         public bool OnMouseUpAsButton()
         {
-            if (GameManager.instance.isPlayerTurn())
+            if (gm.isPlayerTurn())
                 character_.onClicked();
             return false;
         }

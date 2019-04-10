@@ -7,6 +7,7 @@
     public class HeuristicFunctions
     {
         private int f_; // posicion del destino al que queremos llegar
+        private GameManager gm = GameManager.instance;
 
         // elige una de las heuristicas dado el tipo de heuristica que reciba
         public double chooseHeuristic(TipoHeuristicas t, NodeCool e, int fin)
@@ -33,10 +34,10 @@
         // coste fisico minimo de ir desde el nodo actual al destino (1 x numCasillas hasta el destino)
         private double heuristic1(NodeCool e)
         {
-            int inix = (int)(e.GetPos() / GameManager.instance.columns);
-            int iniy = (int)(e.GetPos() - inix * GameManager.instance.columns);
-            int destx = (int)(f_ / GameManager.instance.columns);
-            int desty = (int)(f_ - destx * GameManager.instance.columns);
+            int inix = (int)(e.GetPos() / gm.columns);
+            int iniy = (int)(e.GetPos() - inix * gm.columns);
+            int destx = (int)(f_ / gm.columns);
+            int desty = (int)(f_ - destx * gm.columns);
 
             double A = Math.Abs(destx - inix);
             double B = Math.Abs(desty - iniy);
@@ -50,10 +51,10 @@
         // y verticales que separan al nodo e del destino
         private double heuristic2(NodeCool e)
         {
-            int inix = (int)(e.GetPos() / GameManager.instance.columns);
-            int iniy = (int)(e.GetPos() - inix * GameManager.instance.columns);
-            int destx = (int)(f_ / GameManager.instance.columns);
-            int desty = (int)(f_ - destx * GameManager.instance.columns);
+            int inix = (int)(e.GetPos() / gm.columns);
+            int iniy = (int)(e.GetPos() - inix * gm.columns);
+            int destx = (int)(f_ / gm.columns);
+            int desty = (int)(f_ - destx * gm.columns);
 
             double A = Math.Abs(destx - inix);
             double B = Math.Abs(desty - iniy);
@@ -65,10 +66,10 @@
         // nodo e y el destino
         private double heuristic3(NodeCool e)
         {
-            int inix = (int)(e.GetPos() / GameManager.instance.columns);
-            int iniy = (int)(e.GetPos() - inix * GameManager.instance.columns);
-            int destx = (int)(f_ / GameManager.instance.columns);
-            int desty = (int)(f_ - destx * GameManager.instance.columns);
+            int inix = (int)(e.GetPos() / gm.columns);
+            int iniy = (int)(e.GetPos() - inix * gm.columns);
+            int destx = (int)(f_ / gm.columns);
+            int desty = (int)(f_ - destx * gm.columns);
 
             double catA = destx - inix;
             double catB = desty - iniy;

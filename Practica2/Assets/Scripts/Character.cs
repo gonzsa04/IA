@@ -10,6 +10,8 @@
         public Ficha ficha_;
         public int index;
 
+        protected GameManager gm;
+
         public abstract void onClicked();
 
         public Character (Ficha fichaPrefab, int i)
@@ -17,6 +19,7 @@
             ficha_ = Ficha.Instantiate(fichaPrefab);
             ficha_.setCharacter(this);
             index = i;
+            gm = GameManager.instance;
         }
 
         protected void move(Position posL, Vector3 posP)

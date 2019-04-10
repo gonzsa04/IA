@@ -9,6 +9,7 @@
     public class Casilla : MonoBehaviour
     {
         private Tablero tablero; // tablero de casillas
+        private GameManager gm;
 
         // colores posibles y sus respectivos valores (dependen del tipo)
         private Color[] colors = {
@@ -29,6 +30,8 @@
 
         public void Initialize(Tablero tablero, int type, bool tienePlayer = false, bool tieneSuspect = false)
         {
+            gm = GameManager.instance;
+
             this.tablero = tablero;
             this.type = (TipoEstancia)type;
             this.tieneSuspect = tieneSuspect;
@@ -40,7 +43,7 @@
         // al ser pulsado, si es el turno del jugador, le movemos
         public bool OnMouseUpAsButton()
         {
-            if (GameManager.instance.isPlayerTurn())
+            if (gm.isPlayerTurn())
                 onClicked();
             
             return false;
@@ -51,13 +54,13 @@
         {
             if (tablero == null) throw new InvalidOperationException("This object has not been initialized");
 
-            if (!GameManager.instance.GameOver)
+            if (!gm.GameOver)
             {
                 if (!tienePlayer && !tieneSuspect)
                 {
-                    GameManager.instance.movePlayer(this.position, this.transform.position);
+                    gm.movePlayer(this.position, this.transform.position);
                 }
-                else GameManager.instance.startCanMoveRoutine(2.0f);
+                else gm.startCanMoveRoutine(2.0f);
             }
         }
         

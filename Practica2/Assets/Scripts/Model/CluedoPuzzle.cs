@@ -32,6 +32,7 @@
 
         private pair<int, bool>[,] matrix;                    // matriz logica de casillas de cada estancia
         private List<int> possibleRooms = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+        private GameManager gm;
         
         private static readonly int DEFAULT_ROWS = 9;
         private static readonly int DEFAULT_COLUMNS = 9;
@@ -40,6 +41,8 @@
         public CluedoPuzzle() : this(DEFAULT_ROWS, DEFAULT_COLUMNS, DEFAULT_ROOM) { }
         
         public CluedoPuzzle(int rows, int columns, int roomLength) {
+            gm = GameManager.instance;
+
             this.Initialize(rows, columns, roomLength);
         }
 
@@ -74,7 +77,7 @@
             }
 
             // para cada ficha del gm le elegimos una posicion logica aleatoria
-            for(int i = 0; i < GameManager.instance.characters.Count; i++)
+            for(int i = 0; i < gm.characters.Count; i++)
             {
                 Position pos;
                 do
@@ -83,10 +86,10 @@
                 }
                 while (matrix[pos.GetRow(), pos.GetColumn()].Second);
                 matrix[pos.GetRow(), pos.GetColumn()].Second = true;
-                GameManager.instance.characters[i].ficha_.Initialize(GameManager.instance.names[i], pos);
-                if (i < GameManager.instance.numPlayers)
+                gm.characters[i].ficha_.Initialize(gm.names[i], pos);
+                if (i < gm.numPlayers)
                 {
-                    Player aux = (Player)GameManager.instance.characters[i];
+                    Player aux = (Player)gm.characters[i];
                     aux.libreta_.estanciaActual = (TipoEstancia)GetType(pos.GetRow(), pos.GetColumn());
                 }
             }

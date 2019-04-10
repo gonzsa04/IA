@@ -21,8 +21,11 @@
         public Casilla casillaPrefab;
         
         private Casilla[,] casillas;
+        private GameManager gm;
 
         public void Initialize(CluedoPuzzle puzzle) {
+            gm = GameManager.instance;
+
             if (casillas == null) {
                 casillas = new Casilla[puzzle.rows, puzzle.columns];
                 
@@ -66,12 +69,12 @@
             }
 
             // para cada ficha del gm le establecemos la posicion fisica que corresponda
-            for (int i = 0; i < GameManager.instance.characters.Count; i++)
+            for (int i = 0; i < gm.characters.Count; i++)
             {
-                Vector3 position = casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].transform.position;
-                GameManager.instance.characters[i].ficha_.setPosition(position);
-                if (i < GameManager.instance.numPlayers) casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].tienePlayer = true;
-                else casillas[GameManager.instance.characters[i].ficha_.position.GetRow(), GameManager.instance.characters[i].ficha_.position.GetColumn()].tieneSuspect = true;
+                Vector3 position = casillas[gm.characters[i].ficha_.position.GetRow(), gm.characters[i].ficha_.position.GetColumn()].transform.position;
+                gm.characters[i].ficha_.setPosition(position);
+                if (i < gm.numPlayers) casillas[gm.characters[i].ficha_.position.GetRow(), gm.characters[i].ficha_.position.GetColumn()].tienePlayer = true;
+                else casillas[gm.characters[i].ficha_.position.GetRow(), gm.characters[i].ficha_.position.GetColumn()].tieneSuspect = true;
             }
         }
 
@@ -127,6 +130,24 @@
         public void clickCas(int r, int c)
         {
             casillas[r, c].onClicked();
+        }
+
+        public Position getEstancePos(TipoEstancia estancia)
+        {
+            int i = 0;int j = 0;
+            while (i < casillas.GetLength(0))
+            {
+                j = 0;
+                while (j < casillas.GetLength(1))
+                {
+                    if (casillas[i, j].getTypeEstancia() == estancia)
+                        return new Position(i, j);
+                    j++;
+                }
+                i++;
+            }
+
+            return new Position(i, j);
         }
 
         // Cadena de texto representativa

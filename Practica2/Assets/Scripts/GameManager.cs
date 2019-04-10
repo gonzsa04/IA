@@ -141,7 +141,8 @@
                 if (i < numPlayers)
                 {
                     if(i < humanPlayers)characters.Add(new Player(fichaPrefab, libretas[i], i));
-                    else characters.Add(new Bot1(fichaPrefab, libretas[i], i));
+                    else if(i == humanPlayers) characters.Add(new Bot1(fichaPrefab, libretas[i], i));
+                    else characters.Add(new Bot2(fichaPrefab, libretas[i], i));
                     turnos.Add(names[i]);
                 }
                 else characters.Add(new Suspect(fichaPrefab, i));
@@ -260,7 +261,7 @@
                 if ((Time.time - timeBetweenTurn > 3f || timeBetweenTurn == -1) && turn >= humanPlayers)
                 {
                     Player aux = (Player)characters[turn];
-                    if (!aux.asked && !aux.moved) aux.update();
+                    if (!aux.asked && !aux.moved) aux.myTurn();
                 }
             }
         }
@@ -349,6 +350,11 @@
         public TipoEstancia getTipoEstancia(int r, int c)
         {
             return tablero.getCasEstancia(r, c);
+        }
+
+        public Position getPosFromEstance(TipoEstancia estancia)
+        {
+            return tablero.getEstancePos(estancia);
         }
 
         // mueve al jugador a esa posicion (fisica y logicamente)

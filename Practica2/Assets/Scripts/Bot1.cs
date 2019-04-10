@@ -14,10 +14,8 @@
         }
 
         // Update is called once per frame
-        public override void update()
+        public override void myTurn()
         {
-            GameManager gm = GameManager.instance;
-
             int random = rnd.Next(3);
 
             if (random == 0)
@@ -29,9 +27,7 @@
 
                 if (otherEstance != (int)libreta_.estanciaActual)
                 {
-                    int r = (otherEstance / gm.roomLength) * gm.roomLength;
-                    int c = (otherEstance - r) * gm.roomLength;
-                    Position freePos = gm.getFreeCasInEs(new Position(r, c));
+                    Position freePos = gm.getFreeCasInEs(gm.getPosFromEstance((TipoEstancia)otherEstance));
                     gm.clickTab(freePos);
                     int susEstance = (int)gm.getTipoEstancia(gm.characters[otherSuspect].ficha_.getLogicPosition().GetRow(), 
                         gm.characters[otherSuspect].ficha_.getLogicPosition().GetColumn());
@@ -62,7 +58,8 @@
 
                 if (aux.libreta_.estanciaActual != libreta_.estanciaActual)
                 {
-                    Position freePos = gm.getFreeCasInEs(gm.getPosEstancia(aux.ficha_.getLogicPosition().GetRow(), aux.ficha_.getLogicPosition().GetColumn()));
+                    Position freePos = gm.getFreeCasInEs(gm.getPosEstancia(aux.ficha_.getLogicPosition().GetRow(), 
+                        aux.ficha_.getLogicPosition().GetColumn()));
                     gm.clickTab(freePos);
                 }
                 createSugestion();
@@ -71,7 +68,6 @@
 
         private void acusar(int otherSuspect, int otherWeapon)
         {
-            GameManager gm = GameManager.instance;
             Suspect aux = (Suspect)gm.characters[otherSuspect];
             gm.moveSuspect(aux);
             gm.moveSuspect(aux);
@@ -80,14 +76,12 @@
 
         private void createSugestion()
         {
-            GameManager gm = GameManager.instance;
             string estancia = gm.estancias[rnd.Next(gm.estancias.Length)];
             gm.seleccionarSuposicion(estancia);
             string sospechoso = gm.names[(rnd.Next(gm.names.Length - gm.numPlayers)) + gm.numPlayers];
             gm.seleccionarSuposicion(sospechoso);
             string arma = gm.weapons[rnd.Next(gm.weapons.Length)];
             gm.seleccionarSuposicion(arma);
-            //yield return new WaitForSecondsRealtime(time);
         }
     }
 }

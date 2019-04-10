@@ -22,26 +22,26 @@
             cards_ = new List<string>();
         }
 
-        public virtual void update() { }
+        public virtual void myTurn() { }
 
         public new void move(Position posL, Vector3 posP)
         {
-            GameManager.instance.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
-            libreta_.estanciaActual = GameManager.instance.getTipoEstancia(posL.GetRow(), posL.GetColumn());
+            gm.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
+            libreta_.estanciaActual = gm.getTipoEstancia(posL.GetRow(), posL.GetColumn());
             base.move(posL, posP);
             moved = true;
         }
 
         public void showAllCards()
         {
-            int turno = GameManager.instance.getTurn();
+            int turno = gm.getTurn();
             for(int i = 0; i < cards_.Count; i++)
             {
-                for (int j = 0; j < GameManager.instance.numPlayers; j++)
+                for (int j = 0; j < gm.numPlayers; j++)
                 {
                     if (j != turno)
                     {
-                        Player aux = (Player)GameManager.instance.characters[j];
+                        Player aux = (Player)gm.characters[j];
                         aux.libreta_.receiveCard(cards_[i], index);
                         aux.libreta_.notReceivedCards(index);
                     }
@@ -50,20 +50,20 @@
         }
 
         public override void onClicked() {
-            if (!GameManager.instance.GameOver)
+            if (!gm.GameOver)
             {
-                int turno = GameManager.instance.getTurn();
-                Player aux = (Player)GameManager.instance.characters[turno];
+                int turno = gm.getTurn();
+                Player aux = (Player)gm.characters[turno];
                 if(ficha_.name_ != aux.ficha_.name_){
                     if (libreta_.estanciaActual == aux.libreta_.estanciaActual)
                     {
-                        GameManager.instance.estanciasSupPanel.SetActive(true);
-                        GameManager.instance.playerPreguntado = ficha_.name_;
+                        gm.estanciasSupPanel.SetActive(true);
+                        gm.playerPreguntado = ficha_.name_;
                         aux.supposed = true;
                     }
                     else
                     {
-                        GameManager.instance.startCanMoveRoutine(2.0f);
+                        gm.startCanMoveRoutine(2.0f);
                     }
                 }
             }
@@ -71,16 +71,16 @@
 
         public void makeSugestion()
         {
-            if (!GameManager.instance.GameOver)
+            if (!gm.GameOver)
             {
                 List<string> coincidentes = new List<string>();
-                int turno = GameManager.instance.getTurn();
-                Player aux = (Player)GameManager.instance.characters[turno];
-                for (int i = 0; i < GameManager.instance.Suposicion.Count; i++)
+                int turno = gm.getTurn();
+                Player aux = (Player)gm.characters[turno];
+                for (int i = 0; i < gm.Suposicion.Count; i++)
                 {
                     for (int j = 0; j < cards_.Count; j++)
                     {
-                        if (GameManager.instance.Suposicion[i] == cards_[j]) coincidentes.Add(cards_[j]);
+                        if (gm.Suposicion[i] == cards_[j]) coincidentes.Add(cards_[j]);
                     }
                 }
 
@@ -89,14 +89,14 @@
                 {
                     card = rnd.Next(0, coincidentes.Count);
                     aux.libreta_.receiveCard(coincidentes[card], index);
-                    GameManager.instance.cartaRecibida = coincidentes[card];
+                    gm.cartaRecibida = coincidentes[card];
                 }
                 else
                 {
-                    GameManager.instance.cartaRecibida = "Ninguna";
+                    gm.cartaRecibida = "Ninguna";
                     aux.libreta_.notCoincidentCardsFrom(index);
                 }
-                GameManager.instance.startCartaCoroutine(2.0f);
+                gm.startCartaCoroutine(2.0f);
 
             }
         }

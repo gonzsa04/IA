@@ -1,11 +1,5 @@
 //LOGICA
--Acusas cuando tengas tu sobre lleno
--Si no, preguntas al jugador del que tengas menos cosas en la libreta.
--Preguntas con cosas que tu no tengas en la columna del jugador al que vayas a preguntar.
--Cuando tengas tres x en una carta, la añades a tu sobre. 
-
-//METODOS NECESARIOS
--Falta el sobre en el bot2 (y como rellenarlo)
--Metodo de la libreta que devuelva el jugador del que menos info tienes. (cuenta los blancos de cada columna, menos la tuya)
--Metodo de la libre que te devuelva la primera estancia, sospechoso, y arma libres (en su defecto, devolver la primera con x) del jugador a sugestionar.
--Intentar actualizar el sobre solo cuando sugestionas y no coincide ninguna, o cuando alguien se elimina.
+1-Acusas cuando tengas tu sobre lleno
+2-Si no, preguntas al jugador del que tengas menos cosas en la libreta.
+3-Preguntas con cosas que tu no tengas en la columna del jugador al que vayas a preguntar.
+4-Cuando tengas tres x en una carta, la añades a tu sobre. 
