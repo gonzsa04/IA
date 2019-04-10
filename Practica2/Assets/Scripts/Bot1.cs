@@ -18,11 +18,36 @@
         {
             GameManager gm = GameManager.instance;
 
-            int random = rnd.Next(4);
+            int random = rnd.Next(3);
 
-            if (random < 3)
+            if (random == 0)
             {
                 //acusar (elegir est aleatoria: si ya estas en ella elegir sospechoso y arma aleatorias, y si no, moverte a esa estancia)
+                int otherEstance = rnd.Next(gm.estancias.Length);
+                int otherSuspect = rnd.Next(gm.characters.Count - gm.numPlayers) + gm.numPlayers;
+                int otherWeapon = rnd.Next(gm.weapons.Length);
+
+                if (otherEstance != (int)libreta_.estanciaActual)
+                {
+                    int r = (otherEstance / gm.roomLength) * gm.roomLength;
+                    int c = (otherEstance - r) * gm.roomLength;
+                    Position freePos = gm.getFreeCasInEs(new Position(r, c));
+                    gm.clickTab(freePos);
+                    int susEstance = (int)gm.getTipoEstancia(gm.characters[otherSuspect].ficha_.getLogicPosition().GetRow(), 
+                        gm.characters[otherSuspect].ficha_.getLogicPosition().GetColumn());
+                    if (susEstance != otherEstance)
+                    {
+                        if (gm.getTurn() == index) gm.nextTurn();
+                    }
+                    else
+                    {
+                        acusar(otherSuspect, otherWeapon);
+                    }
+                }
+                else
+                {
+                    acusar(otherSuspect, otherWeapon);
+                }       
             }
             else
             {
@@ -30,22 +55,30 @@
                 do
                 {
                     otherPlayer = rnd.Next(gm.numPlayers);
-                } while (otherPlayer == gm.getTurn());
+                } while (otherPlayer == gm.getTurn() || gm.turnos[otherPlayer] == "");
 
                 Player aux = (Player)gm.characters[otherPlayer];
                 gm.playerPreguntado = aux.ficha_.name_;
 
-                if (gm.getTipoEstancia(aux.ficha_.getLogicPosition().GetRow(), aux.ficha_.getLogicPosition().GetColumn()) !=
-                    gm.getTipoEstancia(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn()))
+                if (aux.libreta_.estanciaActual != libreta_.estanciaActual)
                 {
                     Position freePos = gm.getFreeCasInEs(gm.getPosEstancia(aux.ficha_.getLogicPosition().GetRow(), aux.ficha_.getLogicPosition().GetColumn()));
                     gm.clickTab(freePos);
                 }
-                createSugestion(2.0f);
+                createSugestion();
             }
         }
 
-        private void createSugestion(float time)
+        private void acusar(int otherSuspect, int otherWeapon)
+        {
+            GameManager gm = GameManager.instance;
+            Suspect aux = (Suspect)gm.characters[otherSuspect];
+            gm.moveSuspect(aux);
+            gm.moveSuspect(aux);
+            gm.Acusar(otherWeapon);
+        }
+
+        private void createSugestion()
         {
             GameManager gm = GameManager.instance;
             string estancia = gm.estancias[rnd.Next(gm.estancias.Length)];

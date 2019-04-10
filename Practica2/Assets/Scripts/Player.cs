@@ -43,6 +43,7 @@
                     {
                         Player aux = (Player)GameManager.instance.characters[j];
                         aux.libreta_.receiveCard(cards_[i], index);
+                        aux.libreta_.notReceivedCards(index);
                     }
                 }
             }

@@ -39,6 +39,7 @@
         public string[] estancias = { "Biblioteca", "Cocina", "Comedor", "Estudio", "Pasillo", "Recibidor", "Billar", "Baile", "Terraza" };
         public List<int> estanciasAux; // nombres de los tipos de estancia
         public List<string> Suposicion;
+        public List<string> turnos;
         public int supos = 0;
         public int numPlayers = 3;
         public int humanPlayers = 1;
@@ -52,7 +53,12 @@
         public Text memNumber;
         public Text turnoNumber;
         public Text PlayerNumber;
+        public Text PlayerReqNumber;
         public Text CartaNumber;
+        public Text PlayerAcNumber;
+        public Text ArmaAcNumber;
+        public Text EstanciaAcNumber;
+        public Text SuspectAcNumber;
         public Text cantMove;
         public Text ganar;
         public Text perder;
@@ -62,8 +68,9 @@
         public GameObject armasSupPanel;
         public GameObject sospechososSupPanel;
         public GameObject estanciasSupPanel;
+        public GameObject AcusarPanel;
 
-        [HideInInspector] public string cartaRecibida, playerPreguntado;
+        [HideInInspector] public string cartaRecibida, playerPreguntado, playerRequester;
 
         // Dimensiones iniciales del juego
         public int rows = 9;
@@ -72,10 +79,10 @@
 
         private System.Random rnd = new System.Random();
         private Libreta[] libretas;
-        private List<string> turnos;
 
         private CluedoPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
         private int turn;
+        float timeBetweenTurn = -1;
 
         // crimen
         private string armaCrimen;
@@ -167,6 +174,7 @@
 
             // GUI
             disableGUI();
+            AcusarPanel.SetActive(false);
             CleanInfo();
             UpdateInfo();
         }
@@ -247,8 +255,14 @@
 
         void Update()
         {
-            Player aux = (Player)characters[turn];
-            if(!aux.asked && !aux.moved) aux.update();
+            if (!GameOver)
+            {
+                if ((Time.time - timeBetweenTurn > 3f || timeBetweenTurn == -1) && turn >= humanPlayers)
+                {
+                    Player aux = (Player)characters[turn];
+                    if (!aux.asked && !aux.moved) aux.update();
+                }
+            }
         }
 
         // actualiza el turno del jugador actual
@@ -269,6 +283,7 @@
                 else turn++;
                 if (turnos[turn] == "") nextTurn();
                 UpdateInfo();
+                timeBetweenTurn = Time.time;
             }
         }
 
@@ -303,6 +318,13 @@
             cartaPanel.SetActive(true);
             yield return new WaitForSecondsRealtime(time);
             cartaPanel.SetActive(false);
+        }
+
+        private IEnumerator changeAcusarPanel(float time)
+        {
+            AcusarPanel.SetActive(true);
+            yield return new WaitForSecondsRealtime(time);
+            AcusarPanel.SetActive(false);
         }
 
         public void startCanMoveRoutine(float time)
@@ -405,10 +427,17 @@
 
         public void Acusar(int i)
         {
-            Player aux = (Player)characters[(int)turn];
-            Debug.Log("El jugador " + names[(int)turn] + " ha acusado al sospechoso " + names[aux.libreta_.sospechosoActual] + " en la estancia " +
-            aux.libreta_.estanciaActual.ToString() + " con el arma " + ((TipoArmas)i).ToString());
+            Player aux = (Player)characters[turn];
+
+            PlayerAcNumber.text = names[turn];
+            SuspectAcNumber.text = names[aux.libreta_.sospechosoActual];
+            EstanciaAcNumber.text = aux.libreta_.estanciaActual.ToString();
+            ArmaAcNumber.text = weapons[i];
+
+            StartCoroutine(changeAcusarPanel(2.0f));
+
             armasPanel.SetActive(false);
+
             if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && weapons[i] == armaCrimen)
             {
                 Ganar();
@@ -442,6 +471,7 @@
                 Player aux = (Player)characters[i];
                 aux.makeSugestion();
                 armasSupPanel.SetActive(false);
+                playerRequester = names[turn];
                 nextTurn();
             }
         }
@@ -492,8 +522,8 @@
             estanciasSupPanel.SetActive(false);
             sospechososSupPanel.SetActive(false);
             armasSupPanel.SetActive(false);
-            ganar.enabled = false;
             cartaPanel.SetActive(false);
+            ganar.enabled = false;
             perder.enabled = false;
             cantMove.enabled = false;
         }
@@ -561,6 +591,7 @@
             turnoNumber.text = turnos[turn];
             CartaNumber.text = cartaRecibida;
             PlayerNumber.text = playerPreguntado;
+            PlayerReqNumber.text = playerRequester;
         }
 
         // se crea un juego nuevo con casillas aleatorias
