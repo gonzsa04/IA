@@ -16,8 +16,6 @@
 
     // enums
     public enum TipoEstancia { Biblioteca, Cocina, Comedor, Estudio, Pasillo, Recibidor, Billar, Baile, Terraza };
-    public enum TipoArmas { Candelabro, Cuerda, Herramienta, Pistola, Puñal, Tuberia };
-    public enum TipoHeuristicas { SINH, H1, H2, H3 };
 
     // gestiona el juego del tanque
     public class GameManager : MonoBehaviour
@@ -40,17 +38,13 @@
         public List<int> estanciasAux; // nombres de los tipos de estancia
         public List<string> Suposicion;
         public List<string> turnos;
-        public int supos = 0;
-        public int numPlayers = 3;
-        public int humanPlayers = 1;
+        public int numCards;                //Numero de cartas restantes
+        public int numPlayers = 3;          //Numero de jugadores
+        public int humanPlayers = 1;        //Numero de jugadores humanos
+        public float timeBetweenTurn = 3f;  //Tiempo entre turnos (Usado para los bots)
+        public float timeForPanels = 2f;    //Tiempo que tarda en quitarse cada panel
 
         // Interfaz
-        public Text timeNumber;
-        public Text stepsNumber;
-        public Text costNumber;
-        public Text nodesNumber;
-        public Text depthNumber;
-        public Text memNumber;
         public Text turnoNumber;
         public Text PlayerNumber;
         public Text PlayerReqNumber;
@@ -79,23 +73,16 @@
 
         private System.Random rnd = new System.Random();
         private Libreta[] libretas;
+        private float actualTime = -1;
+        private int supos = 0;
 
         private CluedoPuzzle puzzle;    // contiene la matriz logica que sera representada por el tablero de forma visual
         private int turn;
-        float timeBetweenTurn = -1;
 
         // crimen
         private string armaCrimen;
         private string estanciaCrimen;
         private string sospechosoCrimen;
-
-        // medidas de exito mostradas por pantalla
-        private double time = 0.0d;
-        private uint steps = 0;
-        private double cost = 0;
-        private int expandedNodes = 0;
-        private int depth = 0;
-        private int memSize = 0;
 
         void Awake()
         {
@@ -123,8 +110,6 @@
         private void Initialize(int rows, int columns, int roomLength)
         {
             if (tablero == null) throw new InvalidOperationException("The board reference is null");
-            if (timeNumber == null) throw new InvalidOperationException("The timeNumber reference is null");
-            if (stepsNumber == null) throw new InvalidOperationException("The stepsNumber reference is null");
 
 
             // init de variables
@@ -136,11 +121,12 @@
             turnos.Clear();
             characters.Clear();
 
+            //Añadimos en characters los jugadores (humanos y bots) en las primeras posiciones y los sospechosos al final
             for (int i = 0; i < names.Length; i++)
             {
                 if (i < numPlayers)
                 {
-                    if(i < humanPlayers)characters.Add(new Player(fichaPrefab, libretas[i], i));
+                    if(i < humanPlayers)characters.Add(new Player(fichaPrefab, libretas[i], i));      
                     else if(i == humanPlayers) characters.Add(new Bot1(fichaPrefab, libretas[i], i));
                     else characters.Add(new Bot2(fichaPrefab, libretas[i], i));
                     turnos.Add(names[i]);
@@ -224,6 +210,8 @@
 
             return " ";
         }
+
+        //Elige una carta aleatoria de la lista recibida
         private int chooseCardFromType(ref List<int> cards)
         {
             int random = rnd.Next(0, cards.Count);
@@ -239,7 +227,7 @@
         // reparte las cartas sobrantes entre el resto de jugadores
         private void dealCards()
         {
-            int numCards = namesAux.Count + weaponsAux.Count + estanciasAux.Count;
+            numCards = namesAux.Count + weaponsAux.Count + estanciasAux.Count;
             for (int i = 0; i < numPlayers; i++)
             {
                 Player aux = (Player)characters[i];
@@ -254,11 +242,12 @@
 
         //------------------------------------------------------------------------
 
+        //Realizamos el turno de cada jugador con un delay(timeBetweenTurn) entre ellos 
         void Update()
         {
             if (!GameOver)
             {
-                if ((Time.time - timeBetweenTurn > 3f || timeBetweenTurn == -1) && turn >= humanPlayers)
+                if ((Time.time - actualTime > timeBetweenTurn || actualTime == -1) && turn >= humanPlayers)
                 {
                     Player aux = (Player)characters[turn];
                     if (!aux.asked && !aux.moved) aux.myTurn();
@@ -275,7 +264,7 @@
                 supos = 0;
                 Player aux = (Player)characters[turn];
                 aux.moved = false; aux.asked = false; aux.supposed = false;
-                disableLibretas();
+                //disableLibretas();        //DEBUG: comenta esta linea para poder ver las libretas en todo momento
                 armasPanel.SetActive(false);
                 estanciasSupPanel.SetActive(false);
                 sospechososSupPanel.SetActive(false);
@@ -284,7 +273,7 @@
                 else turn++;
                 if (turnos[turn] == "") nextTurn();
                 UpdateInfo();
-                timeBetweenTurn = Time.time;
+                actualTime = Time.time;
             }
         }
 
@@ -307,6 +296,7 @@
             cantMove.enabled = false;
         }
 
+        //Hace aparecer el panel de perder durante time segundos
         private IEnumerator changePerder(float time)
         {
             perder.enabled = true;
@@ -314,6 +304,7 @@
             perder.enabled = false;
         }
 
+        //Hace aparecer el panel de la carta mostrada durante time segundos
         private IEnumerator changeCartaPanel(float time)
         {
             cartaPanel.SetActive(true);
@@ -321,6 +312,7 @@
             cartaPanel.SetActive(false);
         }
 
+        //Hace aparecer el panel de acusacion durante time segundos
         private IEnumerator changeAcusarPanel(float time)
         {
             AcusarPanel.SetActive(true);
@@ -328,9 +320,9 @@
             AcusarPanel.SetActive(false);
         }
 
-        public void startCanMoveRoutine(float time)
+        public void startCanMoveRoutine()
         {
-            StartCoroutine(changeCanMove(time));
+            StartCoroutine(changeCanMove(timeForPanels));
         }
 
         public void changeTieneSuspect(int r, int c)
@@ -342,6 +334,7 @@
             tablero.changeTienePlayer(r, c);
         }
 
+        //Devuelve la primera posicion de esa estancia dada otra que tambien pertenezca a ella
         public Position getPosEstancia(int r, int c)
         {
             return new Position((r / roomLength) * roomLength, (c / roomLength) * roomLength);
@@ -352,6 +345,7 @@
             return tablero.getCasEstancia(r, c);
         }
 
+        //Devuelve la posicion de la primera casilla con el tipo de estancia "estancia"
         public Position getPosFromEstance(TipoEstancia estancia)
         {
             return tablero.getEstancePos(estancia);
@@ -386,6 +380,8 @@
             }
         }
 
+        //Si el jugador ya esta en la estancia del sospechoso sus se activa el panel de armas para
+        //acusar, si no se mueve a ese sospechoso a tu estancia
         public void moveSuspect(Suspect sus)
         {
             Position suspectE, playerE;
@@ -406,6 +402,7 @@
             }
         }
 
+        //Devuelve la primera posicion libre en la estancia a la que pertenezca estancePos
         public Position getFreeCasInEs(Position estancePos)
         {
             int r, c;
@@ -426,11 +423,13 @@
             return new Position(r, c);
         }
 
+        //Simula un click en la casilla (r,c)
         public void clickTab(Position pos)
         {
             tablero.clickCas(pos.GetRow(), pos.GetColumn());
         }
 
+        //Realiza una acusacion con el sospechoso y estancia actual y el arma escogida(i)
         public void Acusar(int i)
         {
             Player aux = (Player)characters[turn];
@@ -440,15 +439,16 @@
             EstanciaAcNumber.text = aux.libreta_.estanciaActual.ToString();
             ArmaAcNumber.text = weapons[i];
 
-            StartCoroutine(changeAcusarPanel(2.0f));
+            StartCoroutine(changeAcusarPanel(timeForPanels));
 
             armasPanel.SetActive(false);
-
-            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && aux.libreta_.estanciaActual.ToString() == estanciaCrimen && weapons[i] == armaCrimen)
+            //Si la acusacion corresponde con las cartas del sobre, gana el jugador que ha acusado
+            if (names[aux.libreta_.sospechosoActual] == sospechosoCrimen && 
+                aux.libreta_.estanciaActual.ToString() == estanciaCrimen && weapons[i] == armaCrimen)
             {
                 Ganar();
             }
-            else
+            else  //Si no coincide, pierde
             {
                 Perder(ref aux);
             }
@@ -456,9 +456,10 @@
             UpdateInfo();
         }
 
-        public void seleccionarSuposicion(string suposicion)
+        //Añade una carta a la suposicion global, si la suposicion ya esta completa, pregunta
+        public void seleccionarSuposicion(string carta)
         {
-            Suposicion.Add(suposicion);
+            Suposicion.Add(carta);
             supos++;
             if (supos == 1)
             {
@@ -482,6 +483,7 @@
             }
         }
 
+        //Actualiza la libreta de un jugador dado
         public void changeLibreta(GameObject go)
         {
             Pair parComp = go.GetComponent<Pair>();
@@ -538,20 +540,23 @@
         {
             return turn;
         }
-        public void startCartaCoroutine(float time)
+
+        public void startCartaCoroutine()
         {
             UpdateInfo();
-            StartCoroutine(changeCartaPanel(time));
-        }
-        private void startPerderCoroutine(float time)
-        {
-            perder.text = "El jugador " + names[turn] + " ha sido eliminado";
-            StartCoroutine(changePerder(time));
+            StartCoroutine(changeCartaPanel(timeForPanels));
         }
 
+        private void startPerderCoroutine()
+        {
+            perder.text = "El jugador " + names[turn] + " ha sido eliminado";
+            StartCoroutine(changePerder(timeForPanels));
+        }
+
+        //Revela las cartas del perdedor aux a los demas jugadores, lo elimina del juego (a el y a su turno) y pasa turno
         private void Perder(ref Player aux)
         {
-            startPerderCoroutine(2.0f);
+            startPerderCoroutine();
             aux.showAllCards();
             tablero.setTienePlayer(aux.ficha_.getLogicPosition().GetRow(), aux.ficha_.getLogicPosition().GetColumn(), false);
             Destroy(aux.ficha_.gameObject);
@@ -563,9 +568,10 @@
             {
                 if (turnos[i] == "") remainingPlayers--;
             }
-            if (remainingPlayers <= 1) Ganar();
+            if (remainingPlayers <= 1) Ganar();     //Si al eliminarse este jugador solo queda uno en juego, este gana
         }
 
+        //Señaliza el final de la partida y muestra al ganador
         private void Ganar()
         {
             disableGUI();
@@ -577,23 +583,11 @@
         // Pone los contadores de información a cero
         private void CleanInfo()
         {
-            time = 0.0d;
-            steps = 0;
-            cost = 0;
-            expandedNodes = 0;
-            memSize = 0;
-            depth = 0;
         }
 
         // Actualiza la información del panel, mostrándolo si corresponde
         private void UpdateInfo()
         {
-            timeNumber.text = (time * 1000).ToString("0.0"); // Lo enseñamos en milisegundos y sólo con un decimal
-            stepsNumber.text = steps.ToString();
-            costNumber.text = cost.ToString();
-            nodesNumber.text = expandedNodes.ToString();
-            memNumber.text = memSize.ToString();
-            depthNumber.text = depth.ToString();
             turnoNumber.text = turnos[turn];
             CartaNumber.text = cartaRecibida;
             PlayerNumber.text = playerPreguntado;

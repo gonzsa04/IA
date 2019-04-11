@@ -127,11 +127,13 @@
             return casillas[r, c].transform.position;
         }
 
+        //Simula un click en la casilla (r,c)
         public void clickCas(int r, int c)
         {
             casillas[r, c].onClicked();
         }
 
+        //Devuelve la posicion de la primera casilla con el tipo de estancia "estancia"
         public Position getEstancePos(TipoEstancia estancia)
         {
             int i = 0;int j = 0;

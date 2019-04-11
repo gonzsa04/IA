@@ -5,10 +5,11 @@
     using UnityEngine;
     using Model;
 
+    //Clase padre de los jugadores y los sospechosos
     public abstract class Character
     {
-        public Ficha ficha_;
-        public int index;
+        public Ficha ficha_;    //Representacion grafica
+        public int index;       //Que personaje eres en la lista de personajes
 
         protected GameManager gm;
 

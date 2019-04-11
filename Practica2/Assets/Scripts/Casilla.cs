@@ -60,7 +60,7 @@
                 {
                     gm.movePlayer(this.position, this.transform.position);
                 }
-                else gm.startCanMoveRoutine(2.0f);
+                else gm.startCanMoveRoutine();
             }
         }
         

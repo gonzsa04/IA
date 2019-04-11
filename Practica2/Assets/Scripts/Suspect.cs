@@ -11,6 +11,7 @@
         {
         }
 
+        //Marca la posicion logica posL como que tiene un sospechoso, y se mueve a la posicion fisica posP
         public new void move(Position posL, Vector3 posP)
         {
             Player aux = (Player)gm.characters[gm.getTurn()];
@@ -19,6 +20,7 @@
             aux.asked = true;
         }
 
+        //Al ser clickado, se mueve o le acusas
         public override void onClicked() {
             if (!gm.GameOver)
             {

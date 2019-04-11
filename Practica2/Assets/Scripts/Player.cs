@@ -5,12 +5,13 @@
     using UnityEngine;
     using Model;
 
+    //Jugador humano, del que heredaran los bots
     public class Player : Character
     {
         private System.Random rnd = new System.Random();
 
-        public Libreta libreta_;
-        public List<string> cards_;
+        public Libreta libreta_;        //Base de conocimiento
+        public List<string> cards_;     //Cartas que se le han repartido
         public bool moved = false;
         public bool asked = false;
         public bool supposed = false;
@@ -22,8 +23,10 @@
             cards_ = new List<string>();
         }
 
+        //El jugador humano no hara nada en su turno
         public virtual void myTurn() { }
 
+        //Marca la posicion logica posL como que tiene un jugador, y se mueve a la posicion fisica posP (tambien actualiza la estancia actual)
         public new void move(Position posL, Vector3 posP)
         {
             gm.changeTienePlayer(ficha_.getLogicPosition().GetRow(), ficha_.getLogicPosition().GetColumn());
@@ -32,6 +35,7 @@
             moved = true;
         }
 
+        //Muestra todas sus cartas a los demas jugadores
         public void showAllCards()
         {
             int turno = gm.getTurn();
@@ -49,6 +53,7 @@
             }
         }
 
+        //Simula un click y permite empezar a otro jugador una suposicion hacia ti
         public override void onClicked() {
             if (!gm.GameOver)
             {
@@ -63,12 +68,14 @@
                     }
                     else
                     {
-                        gm.startCanMoveRoutine(2.0f);
+                        gm.startCanMoveRoutine();
                     }
                 }
             }
         }
 
+        //Envia las cartas coincidentes con la suposicion al jugador que ha preguntado. Si no hay coincidentes envia "ninguna"
+        //Si hay varias coincidentes, envia una aleatoria
         public void makeSugestion()
         {
             if (!gm.GameOver)
@@ -96,7 +103,7 @@
                     gm.cartaRecibida = "Ninguna";
                     aux.libreta_.notCoincidentCardsFrom(index);
                 }
-                gm.startCartaCoroutine(2.0f);
+                gm.startCartaCoroutine();
 
             }
         }

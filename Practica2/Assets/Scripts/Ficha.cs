@@ -4,7 +4,7 @@
     using UnityEngine;
     using Model;
 
-    // clase ficha (sospechosos y jugadores)
+    // clase ficha que tendran todos los personajes (representacion grafica de sospechosos y jugadores)
     public class Ficha : MonoBehaviour {
         private Character character_;
         private GameManager gm;
@@ -25,7 +25,7 @@
             this.gameObject.GetComponent<TextMesh>().text = this.name_;
         }
 
-        // al ser pulsado
+        // al ser pulsado, se lo comunica a su personaje
         public bool OnMouseUpAsButton()
         {
             if (gm.isPlayerTurn())

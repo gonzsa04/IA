@@ -13,6 +13,8 @@
 
     using UnityEngine;
 
+    public enum TipoHeuristicas { SINH, H1, H2, H3 };
+
     // usa un grafo dirigido valorado construido a partir de la matriz logica del juego y una lista para ir introduciendo
     // los nodos ordenados por prioridad (menor coste final)
     class Astar
