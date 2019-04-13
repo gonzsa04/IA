@@ -4498,7 +4498,7 @@ MonoBehaviour:
   numCards: 0
   numPlayers: 3
   humanPlayers: 1
-  timeBetweenTurn: 0.1
+  timeBetweenTurn: 3
   timeForPanels: 2
   turnoNumber: {fileID: 1758113459}
   PlayerNumber: {fileID: 1663831407}
