@@ -52,15 +52,24 @@ namespace Model
             sendMessageAll("resetTrans");
         }
 
+        IEnumerator showGoalText(float time)
+        {
+            goalTextGo.SetActive(true);
+            yield return new WaitForSecondsRealtime(time);
+            goalTextGo.SetActive(false);
+        }
+
         //------------------------------PUBLIC--------------------------------
 
         public static GameManager instance;
 
+        public float timeForGoal;
         public Text score;
         public Text chutsA;
         public Text chutsB;
         public Text savesA;
         public Text savesB;
+        public GameObject goalTextGo;
         public GameObject pauseTextGO;
 
         public void restart()
@@ -72,6 +81,8 @@ namespace Model
 
         public void addScore(string team)
         {
+            StartCoroutine(showGoalText(timeForGoal));
+
             if (team == "A") scoreA++;
             else if (team == "B") scoreB++;
             restartPositions();
