@@ -1,11 +1,9 @@
 La inteligencia como tal {
 	Comportamientos de direccion:
-		-Ir a por la pelota
-		-Coger la pelota (si esta libre, colocarte)
-		-Despejar la pelota (si no esta libre)
-		-Posicion de ataque para chutar
-		-Chutar (angulo aletarorio dentro de un rango)
-		-Volver a la posicion inicial
+		-Ir a un transform  X
+		-Coger la pelota (si esta libre, colocarte)  X
+		-Chutar/Despejar (angulo aletarorio dentro de un rango)
+		-Colocarse para chutar
 		-Ponerte entre la pelota y la porteria
 	Comportamiento centralizado:
 		-portero siempre se queda en la porteria
