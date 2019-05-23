@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 namespace Model
 {
+    public enum TEAM { NONE, A, B } // existing teams
+
     public class GameManager : MonoBehaviour
     {
         //------------------------------PRIVATE------------------------------
@@ -63,6 +65,7 @@ namespace Model
 
         public static GameManager instance;
 
+        public TEAM hasBall = TEAM.NONE;
         public float timeForGoal;
         public Text score;
         public Text chutsA;
