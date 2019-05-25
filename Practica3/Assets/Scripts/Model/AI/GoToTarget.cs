@@ -44,12 +44,8 @@
                     {
                         gm.hasBall = teamComp.team;
                         gm.setIHaveTheBall(ihtb);
-                        return TaskStatus.Success;
                     }
-                    else
-                    {
-                        return TaskStatus.Running;
-                    }
+                    return TaskStatus.Success;
                 }
                 // We haven't reached the target yet so keep moving towards it
                 transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);

@@ -1,5 +1,5 @@
 La inteligencia como tal {
-	-Conectar/Reiniciar arboles
+	-Reiniciar arboles y corregir delantero
 	
 	Comportamiento Distribuido:
 		-Tu equipo tiene la pelota
