@@ -1,17 +1,20 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Model
+﻿namespace Model
 {
-    public class goalBehaviour : MonoBehaviour
-    {
-        public string Tag;
-        public string team;
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
 
-        private void OnTriggerEnter(Collider other)
+    namespace Model
+    {
+        public class goalBehaviour : MonoBehaviour
         {
-            if (other.tag == Tag) GameManager.instance.addScore(team);
+            public string Tag;
+            public string team;
+
+            private void OnTriggerEnter(Collider other)
+            {
+                if (other.tag == Tag) GameManager.instance.addScore(team);
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Model
 
         private bool pause;
         private int scoreA, scoreB, numChutsA, numChutsB, numSavesA, numSavesB;
+        private IHaveTheBall ballOwner;
 
         void Awake()
         {
@@ -102,6 +103,21 @@ namespace Model
             pause = !pause;
             pauseTextGO.SetActive(pause);
             sendMessageAll("toggleRB");
+        }
+
+        public void setIHaveTheBall(IHaveTheBall ballOwner_)
+        {
+            ballOwner = ballOwner_;
+            ballOwner.setBool(true);
+        }
+
+        public void clearBall()
+        {
+            if (ballOwner != null)
+            {
+                ballOwner.setBool(false);
+                hasBall = TEAM.NONE;
+            }
         }
 
         public void exit()

@@ -6,14 +6,14 @@
     [TaskCategory("FootBall")]
     public class Attack : Action
     {
-        // The transform that the object is moving towards
-        public Rigidbody ballRB;
-        public Transform ballTrans;
         public Transform goalTrans;
-        public float minDistance = -3;
+        public float minDistance = 10;
+        public float ballDistance = -3;
+        public float speed = 10;
+        public Transform ballTrans;
+        public Rigidbody ballRB;
 
         private GameManager gm;
-        private Team teamComp;
 
         public override void OnStart()
         {
@@ -21,13 +21,23 @@
             var targetPosition = goalTrans.position;
             targetPosition.y = transform.position.y;
             transform.LookAt(targetPosition);
-            transform.position = Vector3.MoveTowards(ballTrans.position, goalTrans.position, minDistance);
+            transform.position = Vector3.MoveTowards(ballTrans.position, goalTrans.position, ballDistance);
             ballRB.isKinematic = false;
         }
 
         public override TaskStatus OnUpdate()
         {
-            return TaskStatus.Success;
+            float distance = Vector3.SqrMagnitude(transform.position - goalTrans.position);
+            Debug.Log(distance);
+            if (distance < minDistance)
+            {
+                return TaskStatus.Success;
+            }
+            else
+            {
+                transform.position = Vector3.MoveTowards(transform.position, goalTrans.position, speed * Time.deltaTime);
+                return TaskStatus.Running;
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ La inteligencia como tal {
 		-Ir a un transform  X
 		-Coger la pelota (si esta libre, colocarte)  X
 		-Chutar/Despejar (angulo aletarorio dentro de un rango)
-		-Colocarse para chutar
+		-Colocarse para chutar X
 		-Ponerte entre la pelota y la porteria
 	Comportamiento centralizado:
 		-portero siempre se queda en la porteria

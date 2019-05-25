@@ -8,6 +8,7 @@
     {
         private GameManager gm;
         private Team teamComp;
+        private IHaveTheBall ihtb;
 
         // The speed of the object
         public float speed = 0;
@@ -24,6 +25,7 @@
         {
             gm = GameManager.instance;
             teamComp = GetComponent<Team>();
+            ihtb = gameObject.GetComponent<IHaveTheBall>();
         }
 
         public override TaskStatus OnUpdate()
@@ -33,10 +35,14 @@
             {
                 if (!idle)
                 {
-                    gm.hasBall = team;
+                    gm.hasBall = teamComp.team;
+                    gm.setIHaveTheBall(ihtb);
                     return TaskStatus.Success;
                 }
-                else return TaskStatus.Running;
+                else
+                {
+                    return TaskStatus.Running;
+                }
             }
             // We haven't reached the target yet so keep moving towards it
             transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
