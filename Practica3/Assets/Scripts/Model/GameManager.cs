@@ -107,6 +107,7 @@ namespace Model
 
         public void setIHaveTheBall(IHaveTheBall ballOwner_)
         {
+            if(ballOwner != null)ballOwner.setBool(false);
             ballOwner = ballOwner_;
             ballOwner.setBool(true);
         }

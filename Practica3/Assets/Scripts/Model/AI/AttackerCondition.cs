@@ -23,7 +23,7 @@
 
         public override TaskStatus OnUpdate()
         {
-            if (gm.hasBall == TEAM.NONE || ihtb.getBool())
+            if (gm.hasBall == TEAM.NONE)
             {
                 if ((enemyField == TEAM.B && ballTrans.position.x > centerPos) ||
                     (enemyField == TEAM.A && ballTrans.position.x < centerPos))
