@@ -1,6 +1,7 @@
 ﻿namespace Model.IA
 {
     using UnityEngine;
+    using UnityEngine.UI;
     using BehaviorDesigner.Runtime.Tasks;
 
     [TaskCategory("FootBall")]
@@ -13,31 +14,36 @@
         public Transform ballTrans;
         public Rigidbody ballRB;
 
-        private GameManager gm;
+        public Text state;
+        public string stateText = "Trying to shoot";
 
         public override void OnStart()
         {
+            state.text = stateText;
             ballRB.isKinematic = true;
             var targetPosition = goalTrans.position;
             targetPosition.y = transform.position.y;
             transform.LookAt(targetPosition);
-            transform.position = Vector3.MoveTowards(ballTrans.position, goalTrans.position, ballDistance);
             ballRB.isKinematic = false;
         }
 
         public override TaskStatus OnUpdate()
         {
-            float distance = Vector3.SqrMagnitude(transform.position - goalTrans.position);
-            Debug.Log(distance);
-            if (distance < minDistance)
+            if (!GameManager.instance.getPause())
             {
-                return TaskStatus.Success;
+                float distance = Vector3.SqrMagnitude(transform.position - goalTrans.position);
+                if (distance < minDistance)
+                {
+                    return TaskStatus.Success;
+                }
+                else
+                {
+                    transform.position = Vector3.MoveTowards(ballTrans.position, goalTrans.position, ballDistance);
+                    transform.position = Vector3.MoveTowards(transform.position, goalTrans.position, speed * Time.deltaTime);
+                    return TaskStatus.Running;
+                }
             }
-            else
-            {
-                transform.position = Vector3.MoveTowards(transform.position, goalTrans.position, speed * Time.deltaTime);
-                return TaskStatus.Running;
-            }
+            return TaskStatus.Running;
         }
     }
 }

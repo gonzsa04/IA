@@ -19,9 +19,13 @@
 
         public override TaskStatus OnUpdate()
         {
-            if (gm.hasBall == team)
+            if (!gm.getPause())
+            {
+                if (gm.hasBall == team)
                     return TaskStatus.Success;
-            else return TaskStatus.Failure;
+                else return TaskStatus.Failure;
+            }
+            return TaskStatus.Running;
         }
     }
 }

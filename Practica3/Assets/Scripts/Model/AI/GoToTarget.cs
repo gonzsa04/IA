@@ -1,6 +1,7 @@
 ﻿namespace Model.IA
 {
     using UnityEngine;
+    using UnityEngine.UI;
     using BehaviorDesigner.Runtime.Tasks;
 
     [TaskCategory("FootBall")]
@@ -20,9 +21,13 @@
         public bool idle = false;
 
         public float minDistance = 0.1f;
+        
+        public Text state;
+        public string stateText = "Going to the ball";
 
         public override void OnStart()
         {
+            state.text = stateText;
             gm = GameManager.instance;
             teamComp = GetComponent<Team>();
             ihtb = gameObject.GetComponent<IHaveTheBall>();
@@ -30,22 +35,26 @@
 
         public override TaskStatus OnUpdate()
         {
-            // Return a task status of success once we've reached the target
-            if (Vector3.SqrMagnitude(transform.position - target.position) < minDistance)
+            if (!gm.getPause())
             {
-                if (!idle)
+                // Return a task status of success once we've reached the target
+                if (Vector3.SqrMagnitude(transform.position - target.position) < minDistance)
                 {
-                    gm.hasBall = teamComp.team;
-                    gm.setIHaveTheBall(ihtb);
-                    return TaskStatus.Success;
+                    if (!idle)
+                    {
+                        gm.hasBall = teamComp.team;
+                        gm.setIHaveTheBall(ihtb);
+                        return TaskStatus.Success;
+                    }
+                    else
+                    {
+                        return TaskStatus.Running;
+                    }
                 }
-                else
-                {
-                    return TaskStatus.Running;
-                }
+                // We haven't reached the target yet so keep moving towards it
+                transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+                return TaskStatus.Running;
             }
-            // We haven't reached the target yet so keep moving towards it
-            transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
             return TaskStatus.Running;
         }
     }

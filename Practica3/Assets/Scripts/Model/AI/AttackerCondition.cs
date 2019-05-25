@@ -23,15 +23,19 @@
 
         public override TaskStatus OnUpdate()
         {
-            if (gm.hasBall == TEAM.NONE)
+            if (!gm.getPause())
             {
-                if ((enemyField == TEAM.B && ballTrans.position.x > centerPos) ||
-                    (enemyField == TEAM.A && ballTrans.position.x < centerPos))
-                    return TaskStatus.Success;
+                if (gm.hasBall == TEAM.NONE)
+                {
+                    if ((enemyField == TEAM.B && ballTrans.position.x > centerPos) ||
+                        (enemyField == TEAM.A && ballTrans.position.x < centerPos))
+                        return TaskStatus.Success;
 
+                    else return TaskStatus.Failure;
+                }
                 else return TaskStatus.Failure;
             }
-            else return TaskStatus.Failure;
+            return TaskStatus.Running;
         }
     }
 }

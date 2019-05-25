@@ -12,8 +12,8 @@ namespace Model
         //------------------------------PRIVATE------------------------------
 
         private bool pause;
-        private int scoreA, scoreB, numChutsA, numChutsB, numSavesA, numSavesB;
         private IHaveTheBall ballOwner;
+        private AudioSource kickSound;
 
         void Awake()
         {
@@ -24,21 +24,13 @@ namespace Model
         void Start()
         {
             restart();
+            kickSound = GetComponent<AudioSource>();
         }
 
         // Update is called once per frame
         void Update()
         {
 
-        }
-
-        void updateUI()
-        {
-            score.text = scoreA.ToString() + " - " + scoreB.ToString();
-            chutsA.text = "chutsA: " + numChutsA.ToString();
-            chutsB.text = "chutsB: " + numChutsB.ToString();
-            savesA.text = "savesA: " + numSavesA.ToString();
-            savesB.text = "savesB: " + numSavesB.ToString();
         }
 
         void sendMessageAll(string Message)
@@ -66,6 +58,8 @@ namespace Model
 
         public static GameManager instance;
 
+        [HideInInspector] public int scoreA, scoreB, numChutsA, numChutsB, numSavesA, numSavesB;
+
         public TEAM hasBall = TEAM.NONE;
         public float timeForGoal;
         public Text score;
@@ -75,6 +69,15 @@ namespace Model
         public Text savesB;
         public GameObject goalTextGo;
         public GameObject pauseTextGO;
+
+        public void updateUI()
+        {
+            score.text = scoreA.ToString() + " - " + scoreB.ToString();
+            chutsA.text = "chutsA: " + numChutsA.ToString();
+            chutsB.text = "chutsB: " + numChutsB.ToString();
+            savesA.text = "savesA: " + numSavesA.ToString();
+            savesB.text = "savesB: " + numSavesB.ToString();
+        }
 
         public void restart()
         {
@@ -116,9 +119,17 @@ namespace Model
         {
             if (ballOwner != null)
             {
+                if (hasBall == TEAM.A) numChutsA++;
+                else if (hasBall == TEAM.B) numChutsB++;
+                updateUI();
                 ballOwner.setBool(false);
                 hasBall = TEAM.NONE;
             }
+        }
+
+        public void playKickSound()
+        {
+            kickSound.Play();
         }
 
         public void exit()

@@ -15,8 +15,12 @@
 
         public override TaskStatus OnUpdate()
         {
-            if (ihtb.getBool()) return TaskStatus.Success;
-            else return TaskStatus.Failure;
+            if (!GameManager.instance.getPause())
+            {
+                if (ihtb.getBool()) return TaskStatus.Success;
+                else return TaskStatus.Failure;
+            }
+            return TaskStatus.Running;
         }
     }
 }

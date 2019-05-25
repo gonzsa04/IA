@@ -12,11 +12,15 @@
 
         public override TaskStatus OnUpdate()
         {
-            if ((enemyField != TEAM.B && ballTrans.position.x > centerPos) ||
+            if (!GameManager.instance.getPause())
+            {
+                if ((enemyField != TEAM.B && ballTrans.position.x > centerPos) ||
                 (enemyField != TEAM.A && ballTrans.position.x < centerPos))
-                return TaskStatus.Success;
+                    return TaskStatus.Success;
 
-            else return TaskStatus.Failure;
+                else return TaskStatus.Failure;
+            }
+            return TaskStatus.Running;
         }
     }
 }

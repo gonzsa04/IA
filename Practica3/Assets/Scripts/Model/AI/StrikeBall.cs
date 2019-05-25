@@ -7,7 +7,8 @@
     public class StrikeBall : Action
     {
         // The speed of the object
-        public float speed = 0;
+        public float maxSpeed = 150;
+        public float minSpeed = 40;
 
         public float left = 0, right = 0, up = 0, down = 0;
 
@@ -28,8 +29,11 @@
 
             direction.Normalize();
 
+            float speed = Random.Range(minSpeed, maxSpeed);
+
             ballRB.velocity = direction * speed;
 
+            GameManager.instance.playKickSound();
             GameManager.instance.clearBall();
         }
     }

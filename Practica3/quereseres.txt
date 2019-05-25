@@ -1,14 +1,5 @@
 La inteligencia como tal {
-	Comportamientos de direccion:
-		-Ir a un transform  X
-		-Coger la pelota (si esta libre, colocarte)  X
-		-Chutar/Despejar (angulo aletarorio dentro de un rango)
-		-Colocarse para chutar X
-		-Ponerte entre la pelota y la porteria
-	Comportamiento centralizado:
-		-portero siempre se queda en la porteria
-		-el defensa va a la pelota y despeja si la pelota esta en su campo. Si no, vuelve a su posicion inicial
-		-el atacante va a la pelota si esta libre y en el campo enemigo, si no vuelve a su posicion inicial. Una vez tiene la pelota, intenta colocarse y tirar 
+	-Conectar/Reiniciar arboles
 	
 	Comportamiento Distribuido:
 		-Tu equipo tiene la pelota
@@ -20,6 +11,4 @@ La inteligencia como tal {
 		-Nadie tiene la pelota
 			-Si eres el que esta mas cerca de tu porteria, haces de portero.
 			-Si no, intentas coger la pelota
-	 
--Visualizar los cambios de estrategia (textitos en cadajugador?)
--Sonido chuts
+}
