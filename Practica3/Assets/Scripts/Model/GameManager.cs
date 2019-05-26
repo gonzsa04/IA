@@ -15,6 +15,9 @@ namespace Model
         private IHaveTheBall ballOwner;
         private AudioSource kickSound;
 
+        private GameObject[] teamA;
+        private GameObject[] teamB;
+
         void Awake()
         {
             instance = this;    
@@ -23,14 +26,10 @@ namespace Model
         // Use this for initialization
         void Start()
         {
+            teamA = GameObject.FindGameObjectsWithTag("TeamA");
+            teamB = GameObject.FindGameObjectsWithTag("TeamB");
             restart();
             kickSound = GetComponent<AudioSource>();
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-
         }
 
         void sendMessageAll(string Message)
@@ -130,6 +129,27 @@ namespace Model
         public void playKickSound()
         {
             kickSound.Play();
+        }
+
+        public GameObject getMinPlayerToTarget(TEAM team, Transform target)
+        {
+            float minDistance = 1000000000000;
+            int min = 0;
+
+            GameObject[] teamGOs = { };
+            if (team == TEAM.A) teamGOs = teamA;
+            else if (team == TEAM.B) teamGOs = teamB;
+
+            for (int i = 0; i < teamGOs.Length; i++)
+            {
+                if (Vector3.Distance(teamGOs[i].gameObject.transform.position, target.position) < minDistance)
+                {
+                    minDistance = Vector3.Distance(teamGOs[i].gameObject.transform.position, target.position);
+                    min = i;
+                }
+            }
+
+            return teamGOs[min];
         }
 
         public void exit()

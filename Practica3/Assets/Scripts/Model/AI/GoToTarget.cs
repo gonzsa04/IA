@@ -16,8 +16,6 @@
         // The transform that the object is moving towards
         public Transform target;
 
-        public TEAM team = TEAM.NONE;
-
         public bool idle = false;
 
         public float minDistance = 0.1f;
