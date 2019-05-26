@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/SlidingPuzzle.unity
-    guid: 32713ca80e4a8844e9469691118b30f8
+    path: Assets/Scenes/FootBall.unity
+    guid: 293230a87aa9e9042bec48c71b346e19
   m_configObjects: {}

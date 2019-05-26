@@ -4,6 +4,8 @@
     using UnityEngine.UI;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // coloca al jugador respecto a la pelota con la orientacion necesaria para empujarla
+    // hacia la porteria, y hace que el jugador la empuje hasta una posicion cercana a ella para chutar
     [TaskCategory("FootBall")]
     public class Attack : Action
     {
@@ -14,6 +16,7 @@
         public Transform ballTrans;
         public Rigidbody ballRB;
 
+        // metricas (que hace el jugador)
         public Text state;
         public string stateText = "Trying to shoot";
 
@@ -29,6 +32,8 @@
 
         public override TaskStatus OnUpdate()
         {
+            if (GameManager.instance.getReinit()) return TaskStatus.Failure;
+
             if (!GameManager.instance.getPause())
             {
                 float distance = Vector3.SqrMagnitude(transform.position - goalTrans.position);

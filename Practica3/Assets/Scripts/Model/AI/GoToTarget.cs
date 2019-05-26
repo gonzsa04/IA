@@ -4,16 +4,15 @@
     using UnityEngine.UI;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // lleva al jugador hasta una posicion seleccionada desde el editor
     [TaskCategory("FootBall")]
     public class GoToTarget : Action
     {
         private GameManager gm;
         private Team teamComp;
         private IHaveTheBall ihtb;
-
-        // The speed of the object
+        
         public float speed = 0;
-        // The transform that the object is moving towards
         public Transform target;
 
         public bool idle = false;
@@ -35,7 +34,6 @@
         {
             if (!gm.getPause())
             {
-                // Return a task status of success once we've reached the target
                 if (Vector3.SqrMagnitude(transform.position - target.position) < minDistance)
                 {
                     if (!idle)
@@ -45,7 +43,6 @@
                     }
                     return TaskStatus.Success;
                 }
-                // We haven't reached the target yet so keep moving towards it
                 transform.position = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
                 return TaskStatus.Running;
             }

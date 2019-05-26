@@ -4,15 +4,15 @@
     using UnityEngine.UI;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // mueve al jugador en uno de los ejes dependiendo de la posicion de la pelota
+    // para proteger asi su porteria
     [TaskCategory("FootBall")]
     public class goalKeeperBehavior : Action
     {
         private Team teamComp;
         private bool saved = false;
-
-        // The speed of the object
+        
         public float speed = 0;
-        // The transform that the object is moving towards
         public Transform ballTrans;
 
         public Transform goalTrans;
@@ -30,7 +30,6 @@
         {
             if (!GameManager.instance.getPause())
             {
-                // We haven't reached the target yet so keep moving towards it
                 Vector3 target = new Vector3(transform.position.x, transform.position.y, ballTrans.position.z);
 
                 if (target.z > goalTrans.position.z + goalTrans.localScale.z / 2) target.z = goalTrans.position.z + goalTrans.localScale.z / 2;

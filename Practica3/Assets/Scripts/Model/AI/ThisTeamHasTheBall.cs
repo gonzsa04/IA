@@ -3,11 +3,10 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // indica si el equipo seleccionado desde el editor tiene actualmente la pelota
     [TaskCategory("FootBall")]
     public class ThisTeamHasTheBall : Conditional
     {
-        // The transform that the object is moving towards
-
         private GameManager gm;
 
         public TEAM team;

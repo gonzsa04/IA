@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// lo tienen el jugador y la pelota
 namespace Model
 {
     public class Reset : MonoBehaviour
@@ -21,6 +22,7 @@ namespace Model
             rb = gameObject.GetComponent<Rigidbody>();
         }
 
+        // restaura la posicion inicial (jugador y pelota)
         void resetTrans()
         {
             transform.position = initialPos;
@@ -33,6 +35,7 @@ namespace Model
             }
         }
 
+        // activa/desactiva el rigidbody para reiniciar velocidades e inercias (pelota)
         void toggleRB()
         {
             if (rb != null)

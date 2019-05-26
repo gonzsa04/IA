@@ -3,6 +3,7 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // indica si la pelota esta en tu campo
     [TaskCategory("FootBall")]
     public class DefensiveCondition : Conditional
     {

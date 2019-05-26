@@ -3,6 +3,7 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // indica si el jugador tiene la pelota en este momento
     [TaskCategory("FootBall")]
     public class HavingTheBall : Conditional
     {

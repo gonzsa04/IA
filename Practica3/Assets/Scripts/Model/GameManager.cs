@@ -11,16 +11,18 @@ namespace Model
     {
         //------------------------------PRIVATE------------------------------
 
-        private bool pause;
-        private IHaveTheBall ballOwner;
-        private AudioSource kickSound;
+        private bool pause, reinit;     // juego pausado/reiniciado
+        private IHaveTheBall ballOwner; // quien tiene la pelota actualmente
+        private AudioSource kickSound;  // efecto de sonido -> feedback de chut
 
+        // equipos
         private GameObject[] teamA;
         private GameObject[] teamB;
 
         void Awake()
         {
-            instance = this;    
+            instance = this;
+            kickSound = GetComponent<AudioSource>();
         }
 
         // Use this for initialization
@@ -28,10 +30,16 @@ namespace Model
         {
             teamA = GameObject.FindGameObjectsWithTag("TeamA");
             teamB = GameObject.FindGameObjectsWithTag("TeamB");
-            restart();
-            kickSound = GetComponent<AudioSource>();
+            restart(); // inicia el juego
         }
 
+        void LateUpdate()
+        {
+            reinit = false;
+        }
+
+        // manda un mensaje a todos los GameObjects de la escena
+        // utilizado para decirles que se reseteen
         void sendMessageAll(string Message)
         {
             Object[] objects = FindObjectsOfType(typeof(GameObject));
@@ -41,11 +49,13 @@ namespace Model
             }
         }
 
+        // manda un mensaje de resetear todas las posiciones
         void restartPositions()
         {
             sendMessageAll("resetTrans");
         }
 
+        // muestra el texto de feedback cuando se marca un goal durante time segundos
         IEnumerator showGoalText(float time)
         {
             goalTextGo.SetActive(true);
@@ -53,22 +63,29 @@ namespace Model
             goalTextGo.SetActive(false);
         }
 
+
         //------------------------------PUBLIC--------------------------------
 
         public static GameManager instance;
 
+        // numeros de las metricas del partido
         [HideInInspector] public int scoreA, scoreB, numChutsA, numChutsB, numSavesA, numSavesB;
 
-        public TEAM hasBall = TEAM.NONE;
-        public float timeForGoal;
+        public TEAM hasBall = TEAM.NONE; // equipo actual que tiene la pelota
+        public float timeForGoal;        // tiempo durante el cual estara el texto de feedback
+
+        // textos de las metricas del juego
         public Text score;
         public Text chutsA;
         public Text chutsB;
         public Text savesA;
         public Text savesB;
+
+        // interfaz
         public GameObject goalTextGo;
         public GameObject pauseTextGO;
 
+        // actualiza la interfaz
         public void updateUI()
         {
             score.text = scoreA.ToString() + " - " + scoreB.ToString();
@@ -78,13 +95,16 @@ namespace Model
             savesB.text = "savesB: " + numSavesB.ToString();
         }
 
+        // reinicia el juego -> interfaz + posiciones de los GameObjects
         public void restart()
         {
+            reinit = true;
             scoreA = scoreB = numChutsA = numChutsB = numSavesA = numSavesB = 0;
             updateUI();
             restartPositions();
         }
 
+        // suma un gol al equipo team
         public void addScore(string team)
         {
             StartCoroutine(showGoalText(timeForGoal));
@@ -99,6 +119,10 @@ namespace Model
         {
             return pause;
         }
+        public bool getReinit()
+        {
+            return reinit;
+        }
 
         public void togglePause()
         {
@@ -107,6 +131,20 @@ namespace Model
             sendMessageAll("toggleRB");
         }
 
+        public void playKickSound()
+        {
+            kickSound.Play();
+        }
+
+        public void exit()
+        {
+            Application.Quit();
+        }
+
+
+        //-----------METODOS AUXILIARES PARA LAS CONDICIONES-------------
+
+        // establece que jugador tiene la pelota
         public void setIHaveTheBall(IHaveTheBall ballOwner_)
         {
             if(ballOwner != null)ballOwner.setBool(false);
@@ -114,6 +152,7 @@ namespace Model
             ballOwner.setBool(true);
         }
 
+        // establece que nadie tiene la pelota
         public void clearBall()
         {
             if (ballOwner != null)
@@ -126,11 +165,7 @@ namespace Model
             }
         }
 
-        public void playKickSound()
-        {
-            kickSound.Play();
-        }
-
+        // devuelve el jugador del equipo team que este mas cerca del target
         public GameObject getMinPlayerToTarget(TEAM team, Transform target)
         {
             float minDistance = 1000000000000;
@@ -151,11 +186,5 @@ namespace Model
 
             return teamGOs[min];
         }
-
-        public void exit()
-        {
-            Application.Quit();
-        }
-
     }
 }

@@ -3,6 +3,7 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // inidica si el jugador es el que mas cerca esta de su equipo a su porteria (condicion de ser portero)
     [TaskCategory("FootBall")]
     public class NearestToGoal : Conditional
     {

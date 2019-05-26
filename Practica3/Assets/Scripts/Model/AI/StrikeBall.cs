@@ -3,10 +3,12 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // hace que el jugador chute la pelota en un rango de direcciones (apuntando hacia strikeTrans)
+    // con parametros offset que lo hacen mas o menos preciso. Puede usarse tanto para chutar a porteria
+    // como para despejar
     [TaskCategory("FootBall")]
     public class StrikeBall : Action
     {
-        // The speed of the object
         public float maxSpeed = 150;
         public float minSpeed = 40;
 

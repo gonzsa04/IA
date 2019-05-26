@@ -3,11 +3,10 @@
     using UnityEngine;
     using BehaviorDesigner.Runtime.Tasks;
 
+    // indica si la pelota esta libre y en el campo enemigo (condiciones para atacar)
     [TaskCategory("FootBall")]
     public class AttackerCondition : Conditional
     {
-        // The transform that the object is moving towards
-
         private GameManager gm;
         private IHaveTheBall ihtb;
 
